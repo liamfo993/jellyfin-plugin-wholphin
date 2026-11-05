@@ -1,0 +1,21 @@
+[
+  {
+    "guid": "00E68C90-8840-48D0-AD65-0A5D58249652",
+    "name": "Wholphin Companion",
+    "description": "Dashboard configuration and Seerr integration for Wholphin",
+    "overview": "",
+    "owner": "liamfo993",
+    "imageUrl": "https://raw.githubusercontent.com/damontecres/Wholphin/refs/heads/main/app/src/main/ic_launcher-playstore.png",
+    "category": "General",
+    "versions": [
+      {
+        "version": "0.0.1.0",
+        "changelog": "Adds dashboard-based home screen and Seerr configuration.",
+        "targetAbi": "12.1",
+        "sourceUrl": "https://github.com/liamfo993/jellyfin-plugin-wholphin/releases/download/v0.0.1/Jellyfin.Plugin.Wholphin.zip",
+        "checksum": "ae1d862133e4c66eb893f710985532d4",
+        "timestamp": "2026-11-05T21:10:20"
+      }
+    ]
+  }
+]

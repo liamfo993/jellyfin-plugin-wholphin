@@ -21,7 +21,7 @@ Please note: this plugin is not required to use Wholphin!
 3. Click `New Repository`
 4. Enter the repository URL:
    ```
-   https://damontecres.github.io/Wholphin/plugin/manifest.json
+  https://raw.githubusercontent.com/liamfo993/jellyfin-plugin-wholphin/main/manifest.json
    ```
 5. Go back to the Plugin page and click on `Available`
 6. Find `Wholphin` in the list and click on it
