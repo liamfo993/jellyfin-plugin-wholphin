@@ -27,18 +27,23 @@ Please note: this plugin is not required to use Wholphin!
 6. Find `Wholphin` in the list and click on it
 7. Click `Install`
 8. Restart Jellyfin to complete installation (on Dashboard page)
-9. Go back to Dashboard->Plugin->Wholphin
-10. CLick on `Settings` to configure
+9. Go back to Dashboard->Plugins->Wholphin
+10. Open `Settings` to configure the home screen and Seerr
 
 ## Configuration
 
-### Web UI config
+### Jellyfin Dashboard
 
-This is a work-in-progress!
+Open Dashboard -> Plugins -> Wholphin -> Settings. Add home screen rows, choose
+their order and display options, and select libraries or media types from the
+available options. Seerr can be configured with a server address and an
+optional shared API key or local account. No YAML editing is needed for these
+settings.
 
-### YAML config
+### Advanced YAML config
 
-The plugin can be configured with YAML. Only basic syntax validations are performed on the YAML input.
+The plugin also supports YAML configuration for advanced and legacy setups.
+Only basic syntax validations are performed on YAML input.
 
 #### Example
 ```yaml

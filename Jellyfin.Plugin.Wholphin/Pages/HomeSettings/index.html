@@ -11,231 +11,503 @@
         <div data-role="content">
             <div class="content-primary">
                 <style>
-                    .wholphin-tab-bar {
-                        display: flex;
+                    #wholphinConfigurationPage {
+                        --wholphin-accent: #38a9a0;
+                        --wholphin-line: rgba(150, 170, 175, .28);
                     }
-                    .wholphin-tab-option.active{
-                        border-bottom-color: #741BF8FF;
+                    #wholphinConfigurationPage .wholphin-section {
+                        border-top: 1px solid var(--wholphin-line);
+                        margin-top: 1.5em;
+                        padding-top: 1em;
                     }
-                    .wholphin-tab{
-                        display: none;
-                    }
-                    .wholphin-tab.active{
-                        display: block;
-                    }
-                    .yaml-textarea {
-                        background-color: #1d1d1d;
-                        border: 1px solid #220c3d;
+                    #wholphinConfigurationPage .wholphin-row {
+                        border: 1px solid var(--wholphin-line);
+                        border-left: 3px solid var(--wholphin-accent);
                         border-radius: 6px;
-                        resize: both;
-                        color: #bebebe;
+                        margin: 1em 0;
+                        padding: 1em;
+                    }
+                    #wholphinConfigurationPage .wholphin-row-header,
+                    #wholphinConfigurationPage .wholphin-actions,
+                    #wholphinConfigurationPage .wholphin-inline {
+                        align-items: center;
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: .75em;
+                    }
+                    #wholphinConfigurationPage .wholphin-row-header {
+                        justify-content: space-between;
+                    }
+                    #wholphinConfigurationPage .wholphin-controls {
+                        display: grid;
+                        gap: 0 1.25em;
+                        grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+                    }
+                    #wholphinConfigurationPage .wholphin-field {
+                        margin: 1em 0;
+                    }
+                    #wholphinConfigurationPage .wholphin-field label {
+                        display: block;
+                        margin-bottom: .35em;
+                    }
+                    #wholphinConfigurationPage .wholphin-actions {
+                        margin: 1em 0;
+                    }
+                    #wholphinConfigurationPage .wholphin-muted {
+                        opacity: .75;
+                    }
+                    #wholphinConfigurationPage .wholphin-status {
+                        color: var(--wholphin-accent);
+                        min-height: 1.4em;
+                    }
+                    #wholphinConfigurationPage .wholphin-checkbox {
+                        align-items: center;
+                        display: flex;
+                        gap: .6em;
+                        margin: 1.3em 0;
                     }
                 </style>
                 <h1>Wholphin</h1>
-                <div class="wholphin-tab-bar">
-                <!--
-                    <button type="button" class="wholphin-tab-option" data-tab="settings">Settings</button>
-                    <button type="button" class="wholphin-tab-option active" data-tab="yaml">YAML</button>
-                -->
-                </div>
-
-                <form class="gotifyConfigurationForm">
-                    <div class="verticalSection verticalSection-extrabottompadding wholphin-tab" data-tab="settings">
-                        <h2>Settings</h2>
-                        <div id="homeSettings">
-                            <div id="rowList">
-
-                            </div>
-                            <button type="button" is="emby-button" class="raised" onclick="addRow()">Add row</button>
+                <form id="wholphinForm">
+                    <section class="wholphin-section">
+                        <h2>Home screen</h2>
+                        <p class="wholphin-muted">Choose the rows and order shown in Wholphin.</p>
+                        <div id="rowList"></div>
+                        <div class="wholphin-inline">
+                            <select id="newRowType" is="emby-select" aria-label="New row type"></select>
+                            <button id="addRow" type="button" is="emby-button" class="raised">Add row</button>
                         </div>
-                    </div>
+                        <div id="libraryStatus" class="fieldDescription"></div>
+                    </section>
 
-                    <div class="verticalSection verticalSection-extrabottompadding wholphin-tab active" data-tab="yaml">
-                        <h1 class="sectionTitle">YAML Configuration</h1>
-                        <div class="inputContainer">
-                            <!-- <label for="yamlConfig">Yaml:</label> -->
-                            <textarea class="yaml-textarea" id="yamlConfig" is="emby-input" rows="20" cols="80"></textarea>
-                            <div class="fieldDescription">
-                                YAML configuration, see <a href="https://github.com/damontecres/jellyfin-plugin-wholphin#yaml-config">documentation</a>
+                    <section class="wholphin-section">
+                        <h2>Seerr</h2>
+                        <div class="wholphin-controls">
+                            <div class="wholphin-field">
+                                <label for="seerrUrl">Server address</label>
+                                <input id="seerrUrl" is="emby-input" type="url" placeholder="https://seerr.example.com">
+                            </div>
+                            <div class="wholphin-field">
+                                <label for="seerrLoginType">Login method</label>
+                                <select id="seerrLoginType" is="emby-select">
+                                    <option value="None">URL only; users sign in themselves</option>
+                                    <option value="ApiKey">Shared API key</option>
+                                    <option value="Local">Shared local account</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <button is="emby-button" type="submit" data-theme="b" class="raised button-submit block">
-                            <span>Save</span>
+                        <div id="apiKeyField" class="wholphin-field" hidden>
+                            <label for="seerrApiKey">Seerr API key</label>
+                            <input id="seerrApiKey" is="emby-input" type="password" autocomplete="new-password">
+                        </div>
+                        <div id="localLoginFields" class="wholphin-controls" hidden>
+                            <div class="wholphin-field">
+                                <label for="seerrUsername">Username</label>
+                                <input id="seerrUsername" is="emby-input" type="text" autocomplete="username">
+                            </div>
+                            <div class="wholphin-field">
+                                <label for="seerrPassword">Password</label>
+                                <input id="seerrPassword" is="emby-input" type="password" autocomplete="new-password">
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="wholphin-actions">
+                        <button id="saveSettings" is="emby-button" type="submit" class="raised button-submit">
+                            <span>Save settings</span>
                         </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Add row -->
-            <div id="addRowDiv" style="display: none;">
-                <h2>Add row</h2>
-                <form id="addRowForm">
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="rowType">Type</label>
-                        <select id="type" is="emby-select" required>
-                            <option value="ContinueWatching">Continue Watching</option>
-                            <option value="NextUp">Next Up</option>
-                            <option value="ContinueWatchingCombined">Combined Continue Watching &amp; Next Up</option>
-                        </select>
+                        <span id="saveStatus" class="wholphin-status" role="status" aria-live="polite"></span>
                     </div>
                 </form>
             </div>
         </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
-        <script type="text/javascript">
-            // Tab switching
-            document.querySelectorAll('.wholphin-tab-option').forEach(function(tab) {
-                tab.addEventListener('click', function() {
-                    var targetTab = this.getAttribute('data-tab');
+        <script>
+            (function () {
+                var pluginId = '00E68C90-8840-48D0-AD65-0A5D58249652';
+                var config = {};
+                var libraries = [];
+                var rowTypes = [
+                    ['ContinueWatchingCombined', 'Continue watching + next up'],
+                    ['ContinueWatching', 'Continue watching'],
+                    ['NextUp', 'Next up'],
+                    ['RecentlyAdded', 'Recently added'],
+                    ['RecentlyReleased', 'Recently released'],
+                    ['Genres', 'Genres'],
+                    ['Favorite', 'Favorites'],
+                    ['Suggestions', 'Suggestions'],
+                    ['ByParent', 'Library or collection'],
+                    ['Recordings', 'Recordings'],
+                    ['TvPrograms', 'TV programs'],
+                    ['TvChannels', 'TV channels'],
+                    ['CustomEndpoint', 'Custom endpoint']
+                ];
+                var mediaKinds = ['Movie', 'Series', 'Episode', 'MusicAlbum', 'MusicArtist', 'MusicVideo', 'Person', 'Photo', 'Season', 'Video'];
+                var sorts = ['Default', 'DateCreated', 'DatePlayed', 'Name', 'PremiereDate', 'ProductionYear', 'Random', 'SortName'];
+                var rowList = document.getElementById('rowList');
+                var newRowType = document.getElementById('newRowType');
 
-                    document.querySelectorAll('.wholphin-tab-option').forEach(function(tab) {
-                        tab.classList.remove('active');
+                function read(object, name) {
+                    if (!object) return undefined;
+                    var key = Object.keys(object).find(function (candidate) {
+                        return candidate.toLowerCase() === name.toLowerCase();
                     });
-                    document.querySelectorAll('.wholphin-tab').forEach(function(tab) {
-                        tab.classList.remove('active');
+                    return key ? object[key] : undefined;
+                }
+
+                function write(object, name, value) {
+                    var key = Object.keys(object).find(function (candidate) {
+                        return candidate.toLowerCase() === name.toLowerCase();
                     });
+                    object[key || name] = value;
+                }
 
-                    document.querySelectorAll('[data-tab="' + targetTab + '"]').forEach(function(element){
-                        element.classList.add('active');
-                    })
+                function homeSettings() {
+                    var homeConfig = read(config, 'HomeConfig') || {};
+                    return read(homeConfig, 'HomePageSettings') || {};
+                }
 
-                });
-            });
+                function rows() {
+                    return read(homeSettings(), 'Rows') || [];
+                }
 
-            var WholphinPluginConfiguration = {
-                uniquePluginId: "00E68C90-8840-48D0-AD65-0A5D58249652",
-                configUrl: window.ApiClient.getUrl('wholphin/config/home'),
-                config: {},
-                metadata: {names: {}},
+                function labelFor(type) {
+                    var match = rowTypes.find(function (item) { return item[0] === type; });
+                    return match ? match[1] : type || 'Home row';
+                }
 
-                loadConfiguration: function () {
+                function make(tag, className, text) {
+                    var element = document.createElement(tag);
+                    if (className) element.className = className;
+                    if (text !== undefined) element.textContent = text;
+                    return element;
+                }
+
+                function field(label, control) {
+                    var wrapper = make('div', 'wholphin-field');
+                    var labelElement = make('label', '', label);
+                    labelElement.htmlFor = control.id;
+                    wrapper.appendChild(labelElement);
+                    wrapper.appendChild(control);
+                    return wrapper;
+                }
+
+                function selectControl(id, options, selected) {
+                    var select = make('select');
+                    select.id = id;
+                    select.setAttribute('is', 'emby-select');
+                    options.forEach(function (item) {
+                        var option = make('option', '', item[1]);
+                        option.value = item[0];
+                        option.selected = String(item[0]) === String(selected);
+                        select.appendChild(option);
+                    });
+                    return select;
+                }
+
+                function textControl(id, value, type, placeholder) {
+                    var input = make('input');
+                    input.id = id;
+                    input.type = type || 'text';
+                    input.value = value || '';
+                    if (placeholder) input.placeholder = placeholder;
+                    input.setAttribute('is', 'emby-input');
+                    return input;
+                }
+
+                function parentSelect(row, index) {
+                    var choices = [['', 'Choose a library']].concat(libraries.map(function (library) {
+                        return [library.id, library.name];
+                    }));
+                    var select = selectControl('parent-' + index, choices, read(row, 'parentId'));
+                    select.required = true;
+                    select.addEventListener('change', function () { write(row, 'parentId', select.value); });
+                    return field('Library', select);
+                }
+
+                function renderKeyValues(container, row, property, index) {
+                    var entries = read(row, property) || [];
+                    var group = make('div', 'wholphin-field');
+                    group.appendChild(make('h4', '', property === 'headers' ? 'Headers' : 'Query parameters'));
+                    entries.forEach(function (entry, entryIndex) {
+                        var line = make('div', 'wholphin-inline');
+                        var key = textControl(property + '-key-' + index + '-' + entryIndex, read(entry, 'key'));
+                        key.placeholder = 'Key';
+                        key.addEventListener('input', function () { write(entry, 'key', key.value); });
+                        var value = textControl(property + '-value-' + index + '-' + entryIndex, read(entry, 'value'));
+                        value.placeholder = 'Value';
+                        value.addEventListener('input', function () { write(entry, 'value', value.value); });
+                        var remove = make('button', 'raised', 'Remove');
+                        remove.type = 'button';
+                        remove.setAttribute('is', 'emby-button');
+                        remove.addEventListener('click', function () {
+                            entries.splice(entryIndex, 1);
+                            write(row, property, entries);
+                            renderRows();
+                        });
+                        line.appendChild(key);
+                        line.appendChild(value);
+                        line.appendChild(remove);
+                        group.appendChild(line);
+                    });
+                    var add = make('button', 'raised', 'Add ' + (property === 'headers' ? 'header' : 'parameter'));
+                    add.type = 'button';
+                    add.setAttribute('is', 'emby-button');
+                    add.addEventListener('click', function () {
+                        entries.push({ key: '', value: '' });
+                        write(row, property, entries);
+                        renderRows();
+                    });
+                    group.appendChild(add);
+                    container.appendChild(group);
+                }
+
+                function renderViewOptions(card, row, index) {
+                    var viewOptions = read(row, 'viewOptions') || {};
+                    write(row, 'viewOptions', viewOptions);
+                    var details = make('details', 'wholphin-section');
+                    details.appendChild(make('summary', '', 'Display options'));
+                    var controls = make('div', 'wholphin-controls');
+                    var scales = [['0', 'Fit'], ['1', 'None'], ['2', 'Crop'], ['3', 'Fill'], ['4', 'Fill width'], ['5', 'Fill height'], ['-1', 'Unrecognized']];
+                    var ratios = [['0', 'Tall'], ['1', 'Wide'], ['2', '4:3'], ['3', 'Square']];
+                    var images = [['0', 'Primary'], ['1', 'Thumbnail']];
+                    [
+                        ['contentScale', 'Image scaling', scales],
+                        ['aspectRatio', 'Image shape', ratios],
+                        ['imageType', 'Image type', images],
+                        ['episodeContentScale', 'Episode image scaling', scales],
+                        ['episodeAspectRatio', 'Episode image shape', ratios],
+                        ['episodeImageType', 'Episode image type', images]
+                    ].forEach(function (option) {
+                        var select = selectControl(option[0] + '-' + index, option[2], read(viewOptions, option[0]) || '0');
+                        select.addEventListener('change', function () { write(viewOptions, option[0], Number(select.value)); });
+                        controls.appendChild(field(option[1], select));
+                    });
+                    [['heightDp', 'Row height'], ['spacing', 'Item spacing']].forEach(function (option) {
+                        var input = textControl(option[0] + '-' + index, read(viewOptions, option[0]) || 0, 'number');
+                        input.min = '0';
+                        input.step = '1';
+                        input.addEventListener('change', function () { write(viewOptions, option[0], Number(input.value) || 0); });
+                        controls.appendChild(field(option[1], input));
+                    });
+                    [['showTitles', 'Show titles'], ['useSeries', 'Use series images']].forEach(function (option) {
+                        var input = make('input');
+                        input.type = 'checkbox';
+                        input.checked = Boolean(read(viewOptions, option[0]));
+                        input.addEventListener('change', function () { write(viewOptions, option[0], input.checked); });
+                        var label = make('label', 'wholphin-checkbox', option[1]);
+                        label.appendChild(input);
+                        controls.appendChild(label);
+                    });
+                    details.appendChild(controls);
+                    card.appendChild(details);
+                }
+
+                function rowOptions(row, index) {
+                    var type = read(row, 'type');
+                    var controls = make('div', 'wholphin-controls');
+                    if (['RecentlyAdded', 'RecentlyReleased', 'Genres', 'Suggestions', 'ByParent'].indexOf(type) !== -1) {
+                        controls.appendChild(parentSelect(row, index));
+                    }
+                    if (type === 'Favorite') {
+                        var kind = selectControl('kind-' + index, mediaKinds.map(function (item) { return [item, item]; }), read(row, 'kind') || 'Movie');
+                        kind.addEventListener('change', function () { write(row, 'kind', kind.value); });
+                        controls.appendChild(field('Media type', kind));
+                    }
+                    if (type === 'ByParent') {
+                        var sort = read(row, 'sort') || {};
+                        var sortSelect = selectControl('sort-' + index, sorts.map(function (item) { return [item, item]; }), read(sort, 'sort') || 'Default');
+                        sortSelect.addEventListener('change', function () {
+                            write(sort, 'sort', sortSelect.value);
+                            write(row, 'sort', sort);
+                        });
+                        controls.appendChild(field('Sort by', sortSelect));
+                        var direction = selectControl('direction-' + index, [['Ascending', 'Ascending'], ['Descending', 'Descending']], read(sort, 'direction') || 'Ascending');
+                        direction.addEventListener('change', function () {
+                            write(sort, 'direction', direction.value);
+                            write(row, 'sort', sort);
+                        });
+                        controls.appendChild(field('Direction', direction));
+                        var recursive = make('input');
+                        recursive.type = 'checkbox';
+                        recursive.checked = Boolean(read(row, 'recursive'));
+                        recursive.addEventListener('change', function () { write(row, 'recursive', recursive.checked); });
+                        var recursiveLabel = make('label', 'wholphin-checkbox', 'Include items in subfolders');
+                        recursiveLabel.appendChild(recursive);
+                        controls.appendChild(recursiveLabel);
+                    }
+                    if (type === 'CustomEndpoint') {
+                        var title = textControl('title-' + index, read(row, 'title'));
+                        title.addEventListener('input', function () { write(row, 'title', title.value); });
+                        controls.appendChild(field('Row title', title));
+                        var endpoint = textControl('endpoint-' + index, read(row, 'endpoint'), 'text', '/Plugin/Endpoint');
+                        endpoint.addEventListener('input', function () { write(row, 'endpoint', endpoint.value); });
+                        controls.appendChild(field('Jellyfin endpoint path', endpoint));
+                        renderKeyValues(controls, row, 'query', index);
+                        renderKeyValues(controls, row, 'headers', index);
+                    }
+                    return controls;
+                }
+
+                function renderRows() {
+                    rowList.replaceChildren();
+                    rows().forEach(function (row, index) {
+                        var type = read(row, 'type');
+                        var card = make('article', 'wholphin-row');
+                        var header = make('div', 'wholphin-row-header');
+                        header.appendChild(make('h3', '', labelFor(type)));
+                        var actions = make('div', 'wholphin-actions');
+                        [['Move up', '↑', -1], ['Move down', '↓', 1]].forEach(function (action) {
+                            var button = make('button', 'raised', action[1]);
+                            button.type = 'button';
+                            button.setAttribute('is', 'emby-button');
+                            button.title = action[0];
+                            button.setAttribute('aria-label', action[0]);
+                            button.disabled = index + action[2] < 0 || index + action[2] >= rows().length;
+                            button.addEventListener('click', function () {
+                                var currentRows = rows();
+                                var nextIndex = index + action[2];
+                                var moved = currentRows.splice(index, 1)[0];
+                                currentRows.splice(nextIndex, 0, moved);
+                                renderRows();
+                            });
+                            actions.appendChild(button);
+                        });
+                        var remove = make('button', 'raised', 'Remove');
+                        remove.type = 'button';
+                        remove.setAttribute('is', 'emby-button');
+                        remove.addEventListener('click', function () {
+                            rows().splice(index, 1);
+                            renderRows();
+                        });
+                        actions.appendChild(remove);
+                        header.appendChild(actions);
+                        card.appendChild(header);
+                        card.appendChild(rowOptions(row, index));
+                        renderViewOptions(card, row, index);
+                        rowList.appendChild(card);
+                    });
+                }
+
+                function loadLibraries() {
+                    var userId = ApiClient.getCurrentUserId();
+                    if (!userId) return Promise.resolve();
+                    return ApiClient.getJSON(ApiClient.getUrl('Users/' + userId + '/Views')).then(function (result) {
+                        libraries = (read(result, 'Items') || []).map(function (item) {
+                            return { id: read(item, 'Id'), name: read(item, 'Name') };
+                        }).filter(function (item) { return item.id && item.name; });
+                        document.getElementById('libraryStatus').textContent = libraries.length ? '' : 'No libraries are available for this user.';
+                    }).catch(function () {
+                        document.getElementById('libraryStatus').textContent = 'Could not load libraries. You can still add rows that do not need a library.';
+                    });
+                }
+
+                function loadSeerr() {
+                    var seerr = read(config, 'SeerrConfig') || {};
+                    var login = read(seerr, 'Login') || {};
+                    var local = read(login, 'Local') || {};
+                    document.getElementById('seerrUrl').value = read(seerr, 'ServerUrl') || '';
+                    document.getElementById('seerrLoginType').value = read(login, 'Type') || 'None';
+                    document.getElementById('seerrApiKey').value = read(login, 'ApiKey') || '';
+                    document.getElementById('seerrUsername').value = read(local, 'Username') || '';
+                    document.getElementById('seerrPassword').value = read(local, 'Password') || '';
+                    updateLoginFields();
+                }
+
+                function updateLoginFields() {
+                    var type = document.getElementById('seerrLoginType').value;
+                    document.getElementById('apiKeyField').hidden = type !== 'ApiKey';
+                    document.getElementById('localLoginFields').hidden = type !== 'Local';
+                }
+
+                function loadConfiguration() {
                     Dashboard.showLoadingMsg();
-                    ApiClient.getPluginConfiguration(WholphinPluginConfiguration.uniquePluginId).then(function (config) {
-                        WholphinPluginConfiguration.config = config;
-                        console.log("Wholphin config: "+JSON.stringify(config));
-                        updateConfig();
-                        fetchNamesForRows();
-
+                    Promise.all([
+                        ApiClient.getPluginConfiguration(pluginId),
+                        loadLibraries()
+                    ]).then(function (results) {
+                        config = results[0] || {};
+                        var homeConfig = read(config, 'HomeConfig') || {};
+                        var settings = read(homeConfig, 'HomePageSettings') || {};
+                        if (!read(settings, 'Rows')) write(settings, 'Rows', []);
+                        write(homeConfig, 'HomePageSettings', settings);
+                        write(config, 'HomeConfig', homeConfig);
+                        renderRows();
+                        loadSeerr();
+                    }).catch(function (error) {
+                        Dashboard.alert({ title: 'Wholphin', message: 'Could not load plugin settings: ' + error });
+                    }).finally(function () {
                         Dashboard.hideLoadingMsg();
                     });
-                },
-
-                saveConfiguration: function () {
-                    Dashboard.showLoadingMsg();
-                    const activeTab = document.querySelector('.wholphin-tab.active');
-                    const isYaml = activeTab.getAttribute('data-tab')=='yaml';
-                    if(isYaml){
-                        try {
-                            const yamlConfig = jsyaml.load(document.getElementById('yamlConfig').value);
-                            ApiClient.updatePluginConfiguration(WholphinPluginConfiguration.uniquePluginId, yamlConfig).then(function (result) {
-                                Dashboard.processPluginConfigurationUpdateResult(result);
-                                WholphinPluginConfiguration.config = yamlConfig
-                                Dashboard.hideLoadingMsg();
-                            }).catch(async (error) => {
-                                console.error(error);
-                                Dashboard.hideLoadingMsg();
-                                const errorMessage = await error.text() || "An unknown error occurred.";
-                                Dashboard.alert({
-                                    title: "Error",
-                                    message: errorMessage
-                                });
-                            });
-                        } catch (e) {
-                            // TODO toast
-                            Dashboard.hideLoadingMsg();
-                            console.log(e);
-                        }
-                    }
-                },
-            };
-
-            function updateYaml(){
-                const yamlConfig = jsyaml.dump(WholphinPluginConfiguration.config)
-                document.getElementById('yamlConfig').value = yamlConfig
-            }
-
-            function updateUi(){
-                var homeRows = (WholphinPluginConfiguration.config.HomeConfig.HomePageSettings.Rows || [])
-                var rowListElement = document.getElementById('rowList')
-                var rowList = homeRows.map(function(row, index){
-                    var name = row.name || row.type
-                    console.log("Wholphin row map: "+name+" - "+JSON.stringify(row));
-                    return '<div style="border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 15px; background: rgba(0, 0, 0, 0.2); display: flex; justify-content: space-between; align-items: center;">' +
-                        '<div id="wholphinRow'+index+'" style="font-weight: bold; font-size: 1.3em;">' + name + '</div>' +
-                        '<div style="display: flex; gap: 8px; flex-shrink: 0;">' +
-                        '<button type="button" is="emby-button" class="raised" onclick="moveRow(' + index + ', -1)" ' + (index === 0 ? 'disabled' : '') + '>↑</button>' +
-                        '<button type="button" is="emby-button" class="raised" onclick="moveRow(' + index + ', 1)" ' + (index === homeRows.length - 1 ? 'disabled' : '') + '>↓</button>' +
-                        '<button type="button" is="emby-button" class="raised" onclick="deleteRow(' + index + ')">Delete</button>' +
-                        '</div>' +
-                        '</div>';
-                });
-                rowListElement.innerHTML = rowList.join('')
-            }
-
-            function fetchNamesForRows(){
-                var homeRows = (WholphinPluginConfiguration.config.HomeConfig.HomePageSettings.Rows || [])
-                homeRows.forEach(function(row, index){
-                    var type = row.type;
-                    console.log("Wholphin row: "+JSON.stringify(row));
-                    switch(type){
-                        case "ByParent":
-                            ApiClient.getItem(null, row.ParentId).then(function(result){
-                                console.log('Result: '+result.Name);
-                                homeRows[index].name=result.Name
-                                // WholphinPluginConfiguration.metadata.names[index] = result.Name;
-                                document.getElementById('wholphinRow'+index).innerHTML=result.Name;
-                                console.log("metadata: "+JSON.stringify(WholphinPluginConfiguration.metadata))
-                            }).catch((error)=>{
-                                console.error(errror)
-                            });
-                            break;
-                        case "":
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            }
-
-            function updateConfig(){
-                updateYaml();
-                updateUi();
-            }
-
-            function moveRow(index, direction){
-                var homeRows = (WholphinPluginConfiguration.config.HomeConfig.HomePageSettings.Rows || [])
-                if(index===0 && direction<0 || index >=homeRows.length - 1 && direction>0){
-                    return;
-                }else{
-                    const newIndex = index + direction;
-                    const temp = homeRows[index];
-                    homeRows[index] = homeRows[newIndex];
-                    homeRows[newIndex] = temp;
-                    updateConfig();
                 }
-            }
 
-            function deleteRow(index){
-                var homeRows = (WholphinPluginConfiguration.config.HomeConfig.HomePageSettings.Rows || [])
-                homeRows.splice(index, 1)
-                updateConfig();
-            }
+                function saveConfiguration(event) {
+                    event.preventDefault();
+                    var incompleteRow = rows().find(function (row) {
+                        return ['RecentlyAdded', 'RecentlyReleased', 'Genres', 'Suggestions', 'ByParent'].indexOf(read(row, 'type')) !== -1
+                            && !read(row, 'parentId');
+                    });
+                    if (incompleteRow) {
+                        Dashboard.alert({ title: 'Wholphin', message: 'Choose a library for each library-based home row before saving.' });
+                        return;
+                    }
+                    var homeConfig = read(config, 'HomeConfig') || {};
+                    var settings = read(homeConfig, 'HomePageSettings') || {};
+                    write(settings, 'Rows', rows());
+                    write(homeConfig, 'HomePageSettings', settings);
+                    write(config, 'HomeConfig', homeConfig);
 
-            function addRow(){
-                console.log("Add row");
-                document.getElementById("addRowDiv").style.display='block';
-            }
+                    var seerr = read(config, 'SeerrConfig') || { Version: 1 };
+                    write(seerr, 'ServerUrl', document.getElementById('seerrUrl').value.trim());
+                    var loginType = document.getElementById('seerrLoginType').value;
+                    var login = { Type: loginType };
+                    if (loginType === 'ApiKey') {
+                        write(login, 'ApiKey', document.getElementById('seerrApiKey').value);
+                    } else if (loginType === 'Local') {
+                        write(login, 'Local', {
+                            Username: document.getElementById('seerrUsername').value,
+                            Password: document.getElementById('seerrPassword').value
+                        });
+                    }
+                    write(seerr, 'Login', loginType === 'None' ? null : login);
+                    write(config, 'SeerrConfig', seerr);
 
-            document.getElementById('wholphinConfigurationPage').addEventListener('pageshow', function () {
-                WholphinPluginConfiguration.loadConfiguration();
-            });
+                    Dashboard.showLoadingMsg();
+                    ApiClient.updatePluginConfiguration(pluginId, config).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                        document.getElementById('saveStatus').textContent = 'Settings saved';
+                    }).catch(function (error) {
+                        Dashboard.alert({ title: 'Wholphin', message: 'Could not save settings: ' + error });
+                    }).finally(function () {
+                        Dashboard.hideLoadingMsg();
+                    });
+                }
 
-            document.getElementById('wholphinConfigurationPage').addEventListener('submit', function (e) {
-                e.preventDefault();
-                WholphinPluginConfiguration.saveConfiguration();
-            });
+                rowTypes.forEach(function (item) {
+                    var option = make('option', '', item[1]);
+                    option.value = item[0];
+                    newRowType.appendChild(option);
+                });
+                document.getElementById('addRow').addEventListener('click', function () {
+                    var row = { type: newRowType.value };
+                    if (['RecentlyAdded', 'RecentlyReleased', 'Genres', 'Suggestions', 'ByParent'].indexOf(row.type) !== -1) {
+                        row.parentId = '';
+                    }
+                    if (row.type === 'ByParent') row.sort = { sort: 'Default', direction: 'Ascending' };
+                    if (row.type === 'Favorite') row.kind = 'Movie';
+                    if (row.type === 'CustomEndpoint') {
+                        row.title = 'Custom row';
+                        row.endpoint = '';
+                        row.query = [];
+                        row.headers = [];
+                    }
+                    row.viewOptions = {};
+                    rows().push(row);
+                    renderRows();
+                });
+                document.getElementById('seerrLoginType').addEventListener('change', updateLoginFields);
+                document.getElementById('wholphinForm').addEventListener('submit', saveConfiguration);
+                document.getElementById('wholphinConfigurationPage').addEventListener('pageshow', loadConfiguration);
+            })();
         </script>
     </div>
 </body>
