@@ -12,20 +12,67 @@
             <div class="content-primary">
                 <style>
                     #wholphinConfigurationPage {
-                        --wholphin-accent: #38a9a0;
-                        --wholphin-line: rgba(150, 170, 175, .28);
+                        --wholphin-accent: #79d3b0;
+                        --wholphin-coral: #ed9975;
+                        --wholphin-line: rgba(172, 190, 188, .22);
+                        --wholphin-muted: rgba(230, 238, 235, .68);
+                        font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+                    }
+                    #wholphinConfigurationPage .content-primary {
+                        margin: 0 auto;
+                        max-width: 1080px;
+                        padding: 0 1.25em 3em;
+                    }
+                    #wholphinConfigurationPage .wholphin-masthead {
+                        align-items: end;
+                        background: linear-gradient(110deg, rgba(51, 117, 97, .2), rgba(31, 36, 35, .02) 70%);
+                        border-bottom: 1px solid var(--wholphin-line);
+                        display: flex;
+                        justify-content: space-between;
+                        margin: 0 -1.25em 2em;
+                        padding: 2.2em 1.25em 1.7em;
+                    }
+                    #wholphinConfigurationPage .wholphin-eyebrow {
+                        color: var(--wholphin-accent);
+                        font-size: .82em;
+                        font-weight: 700;
+                        margin: 0 0 .45em;
+                        text-transform: uppercase;
+                    }
+                    #wholphinConfigurationPage .wholphin-masthead h1 {
+                        font-size: 2.15em;
+                        font-weight: 600;
+                        margin: 0;
                     }
                     #wholphinConfigurationPage .wholphin-section {
-                        border-top: 1px solid var(--wholphin-line);
-                        margin-top: 1.5em;
-                        padding-top: 1em;
+                        border-bottom: 1px solid var(--wholphin-line);
+                        margin: 0;
+                        padding: 1.75em 0 2em;
+                    }
+                    #wholphinConfigurationPage .wholphin-section-heading {
+                        align-items: baseline;
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: .4em 1em;
+                        justify-content: space-between;
+                        margin-bottom: .5em;
+                    }
+                    #wholphinConfigurationPage .wholphin-section-heading h2 {
+                        font-size: 1.35em;
+                        font-weight: 600;
+                        margin: 0;
+                    }
+                    #wholphinConfigurationPage .wholphin-section-heading p,
+                    #wholphinConfigurationPage .wholphin-muted {
+                        color: var(--wholphin-muted);
+                        margin: .35em 0 1em;
                     }
                     #wholphinConfigurationPage .wholphin-row {
                         border: 1px solid var(--wholphin-line);
                         border-left: 3px solid var(--wholphin-accent);
-                        border-radius: 6px;
-                        margin: 1em 0;
-                        padding: 1em;
+                        border-radius: 5px;
+                        margin: .85em 0;
+                        padding: 1.1em 1.2em;
                     }
                     #wholphinConfigurationPage .wholphin-row-header,
                     #wholphinConfigurationPage .wholphin-actions,
@@ -40,24 +87,37 @@
                     }
                     #wholphinConfigurationPage .wholphin-controls {
                         display: grid;
-                        gap: 0 1.25em;
+                        gap: 0 1.5em;
                         grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
                     }
                     #wholphinConfigurationPage .wholphin-field {
-                        margin: 1em 0;
+                        margin: .9em 0;
                     }
                     #wholphinConfigurationPage .wholphin-field label {
                         display: block;
-                        margin-bottom: .35em;
+                        margin-bottom: .5em;
+                        font-size: .92em;
+                        font-weight: 600;
+                    }
+                    #wholphinConfigurationPage .wholphin-field input,
+                    #wholphinConfigurationPage .wholphin-field select,
+                    #wholphinConfigurationPage .wholphin-inline input,
+                    #wholphinConfigurationPage .wholphin-inline select {
+                        max-width: 100%;
+                    }
+                    #wholphinConfigurationPage input:focus,
+                    #wholphinConfigurationPage select:focus {
+                        border-color: var(--wholphin-accent) !important;
+                        box-shadow: 0 0 0 2px rgba(121, 211, 176, .18);
+                        outline: none;
                     }
                     #wholphinConfigurationPage .wholphin-actions {
-                        margin: 1em 0;
+                        margin: 1.2em 0;
                     }
                     #wholphinConfigurationPage .wholphin-muted {
-                        opacity: .75;
+                        font-size: .94em;
                     }
                     #wholphinConfigurationPage .wholphin-status {
-                        color: var(--wholphin-accent);
                         min-height: 1.4em;
                     }
                     #wholphinConfigurationPage .wholphin-checkbox {
@@ -66,14 +126,91 @@
                         gap: .6em;
                         margin: 1.3em 0;
                     }
+                    #wholphinConfigurationPage .wholphin-seerr-layout {
+                        align-items: start;
+                        display: grid;
+                        gap: 2em;
+                        grid-template-columns: minmax(0, 1.5fr) minmax(240px, .75fr);
+                    }
+                    #wholphinConfigurationPage .wholphin-address-panel {
+                        border-left: 2px solid var(--wholphin-accent);
+                        margin-top: 1em;
+                        padding: .8em 0 .8em 1em;
+                    }
+                    #wholphinConfigurationPage .wholphin-address-state {
+                        align-items: start;
+                        display: flex;
+                        gap: .75em;
+                    }
+                    #wholphinConfigurationPage .wholphin-state-dot {
+                        background: #858d89;
+                        border-radius: 50%;
+                        flex: 0 0 10px;
+                        height: 10px;
+                        margin-top: .35em;
+                    }
+                    #wholphinConfigurationPage .wholphin-address-panel[data-state="saved"] .wholphin-state-dot {
+                        background: var(--wholphin-accent);
+                        box-shadow: 0 0 0 4px rgba(121, 211, 176, .13);
+                    }
+                    #wholphinConfigurationPage .wholphin-address-panel[data-state="pending"] .wholphin-state-dot {
+                        background: var(--wholphin-coral);
+                    }
+                    #wholphinConfigurationPage .wholphin-address-label {
+                        display: block;
+                        font-weight: 700;
+                        margin-bottom: .3em;
+                    }
+                    #wholphinConfigurationPage .wholphin-address-detail {
+                        color: var(--wholphin-muted);
+                        display: block;
+                        overflow-wrap: anywhere;
+                    }
+                    #wholphinConfigurationPage .wholphin-submit {
+                        background: var(--wholphin-accent) !important;
+                        color: #14221d !important;
+                        font-weight: 700;
+                        min-height: 44px;
+                        padding: 0 1.5em;
+                    }
+                    #wholphinConfigurationPage .wholphin-add-row select {
+                        min-width: min(100%, 280px);
+                    }
+                    #wholphinConfigurationPage .wholphin-display-options {
+                        border-top: 1px solid var(--wholphin-line);
+                        margin-top: 1.2em;
+                        padding-top: .7em;
+                    }
+                    #wholphinConfigurationPage .wholphin-display-options summary {
+                        color: var(--wholphin-accent);
+                        cursor: pointer;
+                        font-weight: 600;
+                    }
+                    @media (max-width: 700px) {
+                        #wholphinConfigurationPage .wholphin-seerr-layout {
+                            grid-template-columns: 1fr;
+                            gap: .4em;
+                        }
+                        #wholphinConfigurationPage .wholphin-masthead {
+                            align-items: start;
+                            padding-top: 1.6em;
+                        }
+                    }
                 </style>
-                <h1>Wholphin</h1>
+                <header class="wholphin-masthead">
+                    <div>
+                        <p class="wholphin-eyebrow">Wholphin · Jellyfin plugin</p>
+                        <h1>Settings</h1>
+                    </div>
+                </header>
                 <form id="wholphinForm">
                     <section class="wholphin-section">
-                        <h2>Home screen</h2>
-                        <p class="wholphin-muted">Choose the rows and order shown in Wholphin.</p>
+                        <div class="wholphin-section-heading">
+                            <h2>Home screen</h2>
+                            <p>Arrange rows and tune how they appear in Wholphin.</p>
+                        </div>
                         <div id="rowList"></div>
-                        <div class="wholphin-inline">
+                        <div class="wholphin-inline wholphin-add-row">
                             <select id="newRowType" is="emby-select" aria-label="New row type"></select>
                             <button id="addRow" type="button" is="emby-button" class="raised">Add row</button>
                         </div>
@@ -81,39 +218,55 @@
                     </section>
 
                     <section class="wholphin-section">
-                        <h2>Seerr</h2>
-                        <div class="wholphin-controls">
-                            <div class="wholphin-field">
-                                <label for="seerrUrl">Server address</label>
-                                <input id="seerrUrl" is="emby-input" type="url" placeholder="https://seerr.example.com">
-                            </div>
-                            <div class="wholphin-field">
-                                <label for="seerrLoginType">Login method</label>
-                                <select id="seerrLoginType" is="emby-select">
-                                    <option value="None">URL only; users sign in themselves</option>
-                                    <option value="ApiKey">Shared API key</option>
-                                    <option value="Local">Shared local account</option>
-                                </select>
-                            </div>
+                        <div class="wholphin-section-heading">
+                            <h2>Seerr connection</h2>
+                            <p>Share one Seerr connection with Wholphin users.</p>
                         </div>
-                        <div id="apiKeyField" class="wholphin-field" hidden>
-                            <label for="seerrApiKey">Seerr API key</label>
-                            <input id="seerrApiKey" is="emby-input" type="password" autocomplete="new-password">
-                        </div>
-                        <div id="localLoginFields" class="wholphin-controls" hidden>
-                            <div class="wholphin-field">
-                                <label for="seerrUsername">Username</label>
-                                <input id="seerrUsername" is="emby-input" type="text" autocomplete="username">
+                        <div class="wholphin-seerr-layout">
+                            <div>
+                                <div class="wholphin-controls">
+                                    <div class="wholphin-field">
+                                        <label for="seerrUrl">Server address</label>
+                                        <input id="seerrUrl" is="emby-input" type="url" placeholder="https://seerr.example.com">
+                                    </div>
+                                    <div class="wholphin-field">
+                                        <label for="seerrLoginType">Login method</label>
+                                        <select id="seerrLoginType" is="emby-select">
+                                            <option value="None">Address only</option>
+                                            <option value="ApiKey">Shared API key</option>
+                                            <option value="Local">Shared local account</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="apiKeyField" class="wholphin-field" hidden>
+                                    <label for="seerrApiKey">Seerr API key</label>
+                                    <input id="seerrApiKey" is="emby-input" type="password" autocomplete="new-password">
+                                </div>
+                                <div id="localLoginFields" class="wholphin-controls" hidden>
+                                    <div class="wholphin-field">
+                                        <label for="seerrUsername">Username</label>
+                                        <input id="seerrUsername" is="emby-input" type="text" autocomplete="username">
+                                    </div>
+                                    <div class="wholphin-field">
+                                        <label for="seerrPassword">Password</label>
+                                        <input id="seerrPassword" is="emby-input" type="password" autocomplete="new-password">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="wholphin-field">
-                                <label for="seerrPassword">Password</label>
-                                <input id="seerrPassword" is="emby-input" type="password" autocomplete="new-password">
-                            </div>
+                            <aside id="seerrAddressPanel" class="wholphin-address-panel" data-state="empty" aria-live="polite">
+                                <div class="wholphin-address-state">
+                                    <span class="wholphin-state-dot" aria-hidden="true"></span>
+                                    <div>
+                                        <span id="seerrAddressLabel" class="wholphin-address-label">No address saved</span>
+                                        <span id="seerrAddressDetail" class="wholphin-address-detail">Add a server address to configure Seerr for Wholphin.</span>
+                                    </div>
+                                </div>
+                            </aside>
                         </div>
                     </section>
 
                     <div class="wholphin-actions">
-                        <button id="saveSettings" is="emby-button" type="submit" class="raised button-submit">
+                        <button id="saveSettings" is="emby-button" type="submit" class="raised button-submit wholphin-submit">
                             <span>Save settings</span>
                         </button>
                         <span id="saveStatus" class="wholphin-status" role="status" aria-live="polite"></span>
@@ -264,7 +417,7 @@
                 function renderViewOptions(card, row, index) {
                     var viewOptions = read(row, 'viewOptions') || {};
                     write(row, 'viewOptions', viewOptions);
-                    var details = make('details', 'wholphin-section');
+                    var details = make('details', 'wholphin-display-options');
                     details.appendChild(make('summary', '', 'Display options'));
                     var controls = make('div', 'wholphin-controls');
                     var scales = [['0', 'Fit'], ['1', 'None'], ['2', 'Crop'], ['3', 'Fill'], ['4', 'Fill width'], ['5', 'Fill height'], ['-1', 'Unrecognized']];
@@ -401,8 +554,49 @@
                     });
                 }
 
-                function loadSeerr() {
-                    var seerr = read(config, 'SeerrConfig') || {};
+                function currentSeerrSettings() {
+                    var type = document.getElementById('seerrLoginType').value;
+                    var settings = {
+                        version: 1,
+                        serverUrl: document.getElementById('seerrUrl').value.trim(),
+                        login: { type: type }
+                    };
+                    if (type === 'ApiKey') {
+                        settings.login.apiKey = document.getElementById('seerrApiKey').value;
+                    } else if (type === 'Local') {
+                        settings.login.local = {
+                            username: document.getElementById('seerrUsername').value,
+                            password: document.getElementById('seerrPassword').value
+                        };
+                    }
+                    return settings;
+                }
+
+                var savedSeerrSettings = null;
+
+                function updateSeerrStatus() {
+                    var settings = currentSeerrSettings();
+                    var panel = document.getElementById('seerrAddressPanel');
+                    var label = document.getElementById('seerrAddressLabel');
+                    var detail = document.getElementById('seerrAddressDetail');
+                    if (!settings.serverUrl) {
+                        panel.dataset.state = 'empty';
+                        label.textContent = 'No address saved';
+                        detail.textContent = 'Add a server address to configure Seerr for Wholphin.';
+                        return;
+                    }
+                    if (JSON.stringify(settings) !== JSON.stringify(savedSeerrSettings)) {
+                        panel.dataset.state = 'pending';
+                        label.textContent = 'Unsaved changes';
+                        detail.textContent = 'Save settings to apply this address in Wholphin.';
+                        return;
+                    }
+                    panel.dataset.state = 'saved';
+                    label.textContent = settings.login.type === 'None' ? 'Address saved' : 'Shared login saved';
+                    detail.textContent = settings.serverUrl + ' · Connection is not tested from this dashboard.';
+                }
+
+                function loadSeerr(seerr) {
                     var login = read(seerr, 'Login') || {};
                     var local = read(login, 'Local') || {};
                     document.getElementById('seerrUrl').value = read(seerr, 'ServerUrl') || '';
@@ -411,19 +605,29 @@
                     document.getElementById('seerrUsername').value = read(local, 'Username') || '';
                     document.getElementById('seerrPassword').value = read(local, 'Password') || '';
                     updateLoginFields();
+                    savedSeerrSettings = currentSeerrSettings();
+                    updateSeerrStatus();
                 }
 
                 function updateLoginFields() {
                     var type = document.getElementById('seerrLoginType').value;
+                    var apiKey = document.getElementById('seerrApiKey');
+                    var username = document.getElementById('seerrUsername');
+                    var password = document.getElementById('seerrPassword');
                     document.getElementById('apiKeyField').hidden = type !== 'ApiKey';
                     document.getElementById('localLoginFields').hidden = type !== 'Local';
+                    apiKey.required = type === 'ApiKey';
+                    username.required = type === 'Local';
+                    password.required = type === 'Local';
+                    updateSeerrStatus();
                 }
 
                 function loadConfiguration() {
                     Dashboard.showLoadingMsg();
                     Promise.all([
                         ApiClient.getPluginConfiguration(pluginId),
-                        loadLibraries()
+                        loadLibraries(),
+                        ApiClient.getJSON(ApiClient.getUrl('wholphin/config/seerr/settings')).catch(function () { return null; })
                     ]).then(function (results) {
                         config = results[0] || {};
                         var homeConfig = read(config, 'HomeConfig') || {};
@@ -431,8 +635,9 @@
                         if (!read(settings, 'Rows')) write(settings, 'Rows', []);
                         write(homeConfig, 'HomePageSettings', settings);
                         write(config, 'HomeConfig', homeConfig);
+                        if (results[2]) write(config, 'SeerrConfig', results[2]);
                         renderRows();
-                        loadSeerr();
+                        loadSeerr(results[2] || read(config, 'SeerrConfig') || {});
                     }).catch(function (error) {
                         Dashboard.alert({ title: 'Wholphin', message: 'Could not load plugin settings: ' + error });
                     }).finally(function () {
@@ -456,24 +661,22 @@
                     write(homeConfig, 'HomePageSettings', settings);
                     write(config, 'HomeConfig', homeConfig);
 
-                    var seerr = read(config, 'SeerrConfig') || { Version: 1 };
-                    write(seerr, 'ServerUrl', document.getElementById('seerrUrl').value.trim());
-                    var loginType = document.getElementById('seerrLoginType').value;
-                    var login = { Type: loginType };
-                    if (loginType === 'ApiKey') {
-                        write(login, 'ApiKey', document.getElementById('seerrApiKey').value);
-                    } else if (loginType === 'Local') {
-                        write(login, 'Local', {
-                            Username: document.getElementById('seerrUsername').value,
-                            Password: document.getElementById('seerrPassword').value
-                        });
-                    }
-                    write(seerr, 'Login', loginType === 'None' ? null : login);
+                    var seerr = currentSeerrSettings();
                     write(config, 'SeerrConfig', seerr);
 
                     Dashboard.showLoadingMsg();
                     ApiClient.updatePluginConfiguration(pluginId, config).then(function (result) {
                         Dashboard.processPluginConfigurationUpdateResult(result);
+                        return ApiClient.ajax({
+                            type: 'POST',
+                            url: ApiClient.getUrl('wholphin/config/seerr/settings'),
+                            data: JSON.stringify(seerr),
+                            contentType: 'application/json'
+                        });
+                    }).then(function () {
+                        return ApiClient.getJSON(ApiClient.getUrl('wholphin/config/seerr/settings'));
+                    }).then(function (savedSettings) {
+                        loadSeerr(savedSettings);
                         document.getElementById('saveStatus').textContent = 'Settings saved';
                     }).catch(function (error) {
                         Dashboard.alert({ title: 'Wholphin', message: 'Could not save settings: ' + error });
@@ -505,6 +708,9 @@
                     renderRows();
                 });
                 document.getElementById('seerrLoginType').addEventListener('change', updateLoginFields);
+                ['seerrUrl', 'seerrApiKey', 'seerrUsername', 'seerrPassword'].forEach(function (id) {
+                    document.getElementById(id).addEventListener('input', updateSeerrStatus);
+                });
                 document.getElementById('wholphinForm').addEventListener('submit', saveConfiguration);
                 document.getElementById('wholphinConfigurationPage').addEventListener('pageshow', loadConfiguration);
             })();

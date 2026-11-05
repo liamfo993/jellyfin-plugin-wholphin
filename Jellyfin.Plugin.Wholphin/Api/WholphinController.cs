@@ -139,6 +139,26 @@ public class WholphinController : ControllerBase
         return new Response { Result = result };
     }
 
+    [HttpGet("config/seerr/settings")]
+    [Authorize(Policy = Policies.RequiresElevation)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public ActionResult<SeerrConfig> GetDashboardSeerrSettings()
+    {
+        return WholphinPlugin.Instance!.Configuration.SeerrConfig;
+    }
+
+    [HttpPost("config/seerr/settings")]
+    [Authorize(Policy = Policies.RequiresElevation)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public ActionResult SaveDashboardSeerrSettings([FromBody, Required] SeerrConfig settings)
+    {
+        settings.ServerUrl = settings.ServerUrl?.Trim();
+        var toSave = WholphinPlugin.Instance!.Configuration;
+        toSave.SeerrConfig = settings;
+        WholphinPlugin.Instance.UpdateConfiguration(toSave);
+        return Ok();
+    }
+
     [HttpPost("config/seerr")]
     [Authorize(Policy = Policies.RequiresElevation)]
     [ProducesResponseType(StatusCodes.Status200OK)]
