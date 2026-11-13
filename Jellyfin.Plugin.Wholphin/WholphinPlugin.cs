@@ -62,6 +62,7 @@ public class WholphinPlugin : BasePlugin<PluginConfiguration>, IHasWebPages
                         ["ByParent"] = typeof(ByParent),
                         ["GetItems"] = typeof(GetItems),
                         ["CustomEndpoint"] = typeof(CustomEndpoint),
+                        ["KidsMovies"] = typeof(KidsMovies),
                     }
                 );
             })

@@ -1,25 +1,37 @@
+using System.Text.Json.Serialization;
+
 namespace Jellyfin.Plugin.Wholphin.Models;
 
 public record HomeRowViewOptions
 {
+    [JsonPropertyName("heightDp")]
     public int HeightDp { get; set; }
 
+    [JsonPropertyName("spacing")]
     public int Spacing { get; set; }
 
+    [JsonPropertyName("contentScale")]
     public PrefContentScale ContentScale { get; set; }
 
+    [JsonPropertyName("aspectRatio")]
     public AspectRatio AspectRatio { get; set; }
 
+    [JsonPropertyName("imageType")]
     public ViewOptionImageType ImageType { get; set; }
 
+    [JsonPropertyName("showTitles")]
     public bool ShowTitles { get; set; }
 
+    [JsonPropertyName("useSeries")]
     public bool UseSeries { get; set; }
 
+    [JsonPropertyName("episodeContentScale")]
     public PrefContentScale EpisodeContentScale { get; set; }
 
+    [JsonPropertyName("episodeAspectRatio")]
     public AspectRatio EpisodeAspectRatio { get; set; }
 
+    [JsonPropertyName("episodeImageType")]
     public ViewOptionImageType EpisodeImageType { get; set; }
 }
 

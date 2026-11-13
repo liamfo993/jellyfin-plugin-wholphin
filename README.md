@@ -40,6 +40,21 @@ available options. Seerr can be configured with a server address and an
 optional shared API key or local account. No YAML editing is needed for these
 settings.
 
+#### Kids movie rows
+
+Select **Add kids movie rows** to add editable Family, Animated, Pixar, and Disney
+rows. Each row can be renamed, reordered, removed, limited to a library, and
+filtered by genre, studio, and maximum official rating. Separate alternative
+genres or studios with `|`; when both are set, movies must match both.
+Results depend on your library's metadata and each user's Jellyfin access.
+
+These are discovery rows, not parental controls: animation and studio names
+do not guarantee age suitability, and ratings can be missing or incorrect.
+Configure Jellyfin parental controls and library access for children's accounts.
+The rows appear to all users and do not change existing ratings or metadata.
+In Wholphin, select the plugin as the home-screen settings source if local or
+server-profile settings are taking precedence.
+
 ### Advanced YAML config
 
 The plugin also supports YAML configuration for advanced and legacy setups.

@@ -213,8 +213,10 @@
                         <div class="wholphin-inline wholphin-add-row">
                             <select id="newRowType" is="emby-select" aria-label="New row type"></select>
                             <button id="addRow" type="button" is="emby-button" class="raised">Add row</button>
+                            <button id="addKidsRows" type="button" is="emby-button" class="raised">Add kids movie rows</button>
                         </div>
                         <div id="libraryStatus" class="fieldDescription"></div>
+                        <p class="wholphin-muted">Kids movie rows use genres and studios from your library metadata. Animation and studio names do not guarantee age suitability; configure Jellyfin parental controls for children.</p>
                     </section>
 
                     <section class="wholphin-section">
@@ -292,6 +294,7 @@
                     ['Recordings', 'Recordings'],
                     ['TvPrograms', 'TV programs'],
                     ['TvChannels', 'TV channels'],
+                    ['KidsMovies', 'Kids movies'],
                     ['CustomEndpoint', 'Custom endpoint']
                 ];
                 var mediaKinds = ['Movie', 'Series', 'Episode', 'MusicAlbum', 'MusicArtist', 'MusicVideo', 'Person', 'Photo', 'Season', 'Video'];
@@ -321,6 +324,21 @@
 
                 function rows() {
                     return read(homeSettings(), 'Rows') || [];
+                }
+
+                function kidsViewOptions() {
+                    return {
+                        heightDp: 172,
+                        spacing: 16,
+                        contentScale: 3,
+                        aspectRatio: 0,
+                        imageType: 0,
+                        showTitles: false,
+                        useSeries: true,
+                        episodeContentScale: 3,
+                        episodeAspectRatio: 0,
+                        episodeImageType: 0
+                    };
                 }
 
                 function labelFor(type) {
@@ -431,7 +449,11 @@
                         ['episodeAspectRatio', 'Episode image shape', ratios],
                         ['episodeImageType', 'Episode image type', images]
                     ].forEach(function (option) {
-                        var select = selectControl(option[0] + '-' + index, option[2], read(viewOptions, option[0]) || '0');
+                        var value = read(viewOptions, option[0]);
+                        var names = option[2] === scales ? ['FIT', 'NONE', 'CROP', 'FILL', 'Fill_WIDTH', 'FILL_HEIGHT']
+                            : option[2] === ratios ? ['TALL', 'WIDE', 'FOUR_THREE', 'SQUARE'] : ['PRIMARY', 'THUMB'];
+                        if (typeof value === 'string' && names.indexOf(value) !== -1) value = names.indexOf(value);
+                        var select = selectControl(option[0] + '-' + index, option[2], value === undefined ? '0' : value);
                         select.addEventListener('change', function () { write(viewOptions, option[0], Number(select.value)); });
                         controls.appendChild(field(option[1], select));
                     });
@@ -487,6 +509,30 @@
                         var recursiveLabel = make('label', 'wholphin-checkbox', 'Include items in subfolders');
                         recursiveLabel.appendChild(recursive);
                         controls.appendChild(recursiveLabel);
+                    }
+                    if (type === 'KidsMovies') {
+                        [
+                            ['title', 'Row title', 'Kids movies'],
+                            ['genres', 'Genres (separate alternatives with |)', 'Animation|Family'],
+                            ['studios', 'Studios (separate alternatives with |)', 'Pixar Animation Studios'],
+                            ['maxOfficialRating', 'Maximum official rating (optional)', 'PG']
+                        ].forEach(function (option) {
+                            var input = textControl(option[0] + '-' + index, read(row, option[0]), 'text', option[2]);
+                            input.addEventListener('input', function () { write(row, option[0], input.value); });
+                            controls.appendChild(field(option[1], input));
+                        });
+                        var kidsLibraries = [['', 'All accessible libraries']].concat(libraries.map(function (library) {
+                            return [library.id, library.name];
+                        }));
+                        var kidsParent = selectControl('kids-parent-' + index, kidsLibraries, read(row, 'parentId') || '');
+                        kidsParent.addEventListener('change', function () { write(row, 'parentId', kidsParent.value || null); });
+                        controls.appendChild(field('Library (optional)', kidsParent));
+                        var kidsSort = selectControl('kids-sort-' + index, [
+                            ['SortName', 'Name'], ['DateCreated', 'Date added'], ['PremiereDate', 'Release date'], ['Random', 'Random']
+                        ], read(row, 'sortBy') || 'SortName');
+                        kidsSort.addEventListener('change', function () { write(row, 'sortBy', kidsSort.value); });
+                        controls.appendChild(field('Sort by', kidsSort));
+                        controls.appendChild(make('p', 'wholphin-muted', 'When both genres and studios are set, a movie must match both. The rating filter depends on Jellyfin metadata and is not a substitute for parental controls.'));
                     }
                     if (type === 'CustomEndpoint') {
                         var title = textControl('title-' + index, read(row, 'title'));
@@ -655,6 +701,18 @@
                         Dashboard.alert({ title: 'Wholphin', message: 'Choose a library for each library-based home row before saving.' });
                         return;
                     }
+                    var invalidKidsRow = rows().find(function (row) {
+                        function hasValues(value) {
+                            return (value || '').split('|').some(function (part) { return part.trim(); });
+                        }
+                        return read(row, 'type') === 'KidsMovies'
+                            && (!(read(row, 'title') || '').trim()
+                                || (!hasValues(read(row, 'genres')) && !hasValues(read(row, 'studios'))));
+                    });
+                    if (invalidKidsRow) {
+                        Dashboard.alert({ title: 'Wholphin', message: 'Each kids movies row needs a title and at least one genre or studio.' });
+                        return;
+                    }
                     var homeConfig = read(config, 'HomeConfig') || {};
                     var settings = read(homeConfig, 'HomePageSettings') || {};
                     write(settings, 'Rows', rows());
@@ -697,14 +755,42 @@
                     }
                     if (row.type === 'ByParent') row.sort = { sort: 'Default', direction: 'Ascending' };
                     if (row.type === 'Favorite') row.kind = 'Movie';
+                    if (row.type === 'KidsMovies') {
+                        row.title = 'Animated movies';
+                        row.genres = 'Animation';
+                        row.studios = '';
+                        row.maxOfficialRating = '';
+                        row.parentId = null;
+                        row.sortBy = 'SortName';
+                    }
                     if (row.type === 'CustomEndpoint') {
                         row.title = 'Custom row';
                         row.endpoint = '';
                         row.query = [];
                         row.headers = [];
                     }
-                    row.viewOptions = {};
+                    row.viewOptions = row.type === 'KidsMovies' ? kidsViewOptions() : {};
                     rows().push(row);
+                    renderRows();
+                });
+                document.getElementById('addKidsRows').addEventListener('click', function () {
+                    [
+                        { title: 'Family movies', genres: 'Family', studios: '' },
+                        { title: 'Animated movies', genres: 'Animation', studios: '' },
+                        { title: 'Pixar movies', genres: '', studios: 'Pixar|Pixar Animation Studios' },
+                        { title: 'Disney movies', genres: '', studios: 'Walt Disney Pictures|Walt Disney Animation Studios|Disney' }
+                    ].forEach(function (preset) {
+                        rows().push({
+                            type: 'KidsMovies',
+                            title: preset.title,
+                            genres: preset.genres,
+                            studios: preset.studios,
+                            maxOfficialRating: '',
+                            parentId: null,
+                            sortBy: 'SortName',
+                            viewOptions: kidsViewOptions()
+                        });
+                    });
                     renderRows();
                 });
                 document.getElementById('seerrLoginType').addEventListener('change', updateLoginFields);

@@ -32,6 +32,7 @@ public class SortAndDirection
 [JsonDerivedType(typeof(ByParent), typeDiscriminator: nameof(ByParent))]
 [JsonDerivedType(typeof(GetItems), typeDiscriminator: nameof(GetItems))]
 [JsonDerivedType(typeof(CustomEndpoint), typeDiscriminator: nameof(CustomEndpoint))]
+[JsonDerivedType(typeof(KidsMovies), typeDiscriminator: nameof(KidsMovies))]
 public abstract class HomeRowConfig
 {
     // public string type => this.GetType().Name;
@@ -100,6 +101,27 @@ public class GetItems : HomeRowConfig
     [JsonPropertyName("name")]
     public String Name { get; set; }
     // public GetItemsRequest getItems {get; set;}
+}
+
+public class KidsMovies : HomeRowConfig
+{
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = "Kids movies";
+
+    [JsonPropertyName("genres")]
+    public string Genres { get; set; } = string.Empty;
+
+    [JsonPropertyName("studios")]
+    public string Studios { get; set; } = string.Empty;
+
+    [JsonPropertyName("maxOfficialRating")]
+    public string MaxOfficialRating { get; set; } = string.Empty;
+
+    [JsonPropertyName("parentId")]
+    public Guid? ParentId { get; set; }
+
+    [JsonPropertyName("sortBy")]
+    public string SortBy { get; set; } = "SortName";
 }
 
 public class KeyValueEntry

@@ -28,10 +28,12 @@ public class WholphinController : ControllerBase
 {
     private readonly ILogger<WholphinController> logger;
     private readonly ILoggerFactory loggerFactory;
+    private readonly ILibraryManager libraryManager;
 
-    public WholphinController(ILoggerFactory loggerFactory)
+    public WholphinController(ILoggerFactory loggerFactory, ILibraryManager libraryManager)
     {
         this.loggerFactory = loggerFactory;
+        this.libraryManager = libraryManager;
         logger = loggerFactory.CreateLogger<WholphinController>();
     }
 
@@ -53,17 +55,71 @@ public class WholphinController : ControllerBase
         var settings = config.HomeConfig.HomePageSettings;
         if (settings != null)
         {
-            // var options = new JsonSerializerOptions {
-            //   PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            //   DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            // };
-            // return new JsonResult(settings, options);
-            return settings;
+            if (settings.Rows.OfType<KidsMovies>().Any(row =>
+                string.IsNullOrWhiteSpace(row.Title)
+                || (!HasFilterValues(row.Genres) && !HasFilterValues(row.Studios))
+                || row.SortBy is not ("SortName" or "DateCreated" or "PremiereDate" or "Random")))
+            {
+                logger.LogWarning("A kids movies row has an invalid title, filter, or sort order");
+                return BadRequest("Each kids movies row requires a title, a genre or studio, and a valid sort order.");
+            }
+
+            return new HomePageSettings
+            {
+                Version = settings.Version,
+                Rows = settings.Rows.Select(row => row is KidsMovies kids ? ToCustomEndpoint(kids, Request.PathBase) : row).ToArray(),
+            };
         }
-        else
+
+        return null;
+    }
+
+    private static bool HasFilterValues(string? value)
+    {
+        return !string.IsNullOrWhiteSpace(value)
+            && value.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length > 0;
+    }
+
+    private CustomEndpoint ToCustomEndpoint(KidsMovies row, PathString pathBase)
+    {
+        var query = new List<KeyValueEntry>
         {
-            return null;
+            new() { Key = "includeItemTypes", Value = "Movie" },
+            new() { Key = "recursive", Value = "true" },
+            new() { Key = "limit", Value = "100" },
+            new() { Key = "sortBy", Value = row.SortBy },
+            new() { Key = "sortOrder", Value = row.SortBy is "DateCreated" or "PremiereDate" ? "Descending" : "Ascending" },
+            new() { Key = "enableUserData", Value = "true" },
+        };
+        if (HasFilterValues(row.Genres))
+        {
+            query.Add(new() { Key = "genres", Value = string.Join("|", row.Genres.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) });
         }
+
+        if (HasFilterValues(row.Studios))
+        {
+            var studioIds = row.Studios.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(libraryManager.GetStudioId);
+            query.Add(new() { Key = "studioIds", Value = string.Join(",", studioIds) });
+        }
+
+        if (!string.IsNullOrWhiteSpace(row.MaxOfficialRating))
+        {
+            query.Add(new() { Key = "maxOfficialRating", Value = row.MaxOfficialRating.Trim() });
+        }
+
+        if (row.ParentId.HasValue && row.ParentId != Guid.Empty)
+        {
+            query.Add(new() { Key = "parentId", Value = row.ParentId.Value.ToString() });
+        }
+
+        return new CustomEndpoint
+        {
+            Title = row.Title.Trim(),
+            Endpoint = pathBase.Add("/Items").Value!,
+            Query = query,
+            ViewOptions = row.ViewOptions,
+        };
     }
 
     [HttpGet("config")]
