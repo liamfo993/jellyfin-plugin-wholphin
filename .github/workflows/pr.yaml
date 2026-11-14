@@ -41,6 +41,7 @@ jobs:
       - name: Test
         run: |
           dotnet test "${{ env.NAME }}"
+          dotnet run --project Jellyfin.Plugin.Wholphin.Tests --configuration Release
 
       - name: Build
         run: |

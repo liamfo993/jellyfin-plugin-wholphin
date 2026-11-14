@@ -51,6 +51,11 @@ available options. Seerr can be configured with a server address and an
 optional shared API key or local account. No YAML editing is needed for these
 settings.
 
+If existing rows appear blank after upgrading, restart Jellyfin and reload the
+Wholphin home screen. Rows saved with a zero height are displayed at the
+default height; other display settings are retained. Ensure the plugin is
+selected as the home-screen settings source in Wholphin.
+
 #### Kids movie rows
 
 Select **Add kids movie rows** to add editable Family, Animated, Pixar, and Disney

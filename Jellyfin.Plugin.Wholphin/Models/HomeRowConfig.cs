@@ -38,7 +38,14 @@ public abstract class HomeRowConfig
     // public string type => this.GetType().Name;
 
     [JsonPropertyName("viewOptions")]
-    public HomeRowViewOptions ViewOptions { get; set; }
+    public HomeRowViewOptions ViewOptions { get; set; } = new();
+
+    internal HomeRowConfig WithViewOptions(HomeRowViewOptions viewOptions)
+    {
+        var copy = (HomeRowConfig)MemberwiseClone();
+        copy.ViewOptions = viewOptions;
+        return copy;
+    }
 }
 
 public class ContinueWatching : HomeRowConfig { }

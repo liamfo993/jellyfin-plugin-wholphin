@@ -33,6 +33,9 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
+      - name: Test
+        run: dotnet run --project Jellyfin.Plugin.Wholphin.Tests --configuration Release
+
       - name: Build
         run: |
           VERSION="${TAG_NAME#v}"

@@ -55,7 +55,6 @@ public class WholphinController : ControllerBase
         var settings = config.HomeConfig.HomePageSettings;
         if (settings != null)
         {
-            // Validate KidsMovies rows
             if (settings.Rows.OfType<KidsMovies>().Any(row =>
                 string.IsNullOrWhiteSpace(row.Title)
                 || (!HasFilterValues(row.Genres) && !HasFilterValues(row.Studios))
@@ -65,26 +64,39 @@ public class WholphinController : ControllerBase
                 return BadRequest("Each kids movies row requires a title, a genre or studio, and a valid sort order.");
             }
 
-            // Transform KidsMovies to CustomEndpoint, return all rows
-            var transformedRows = new List<HomeRowConfig>();
-            foreach (var row in settings.Rows)
-            {
-                if (row is KidsMovies kids)
-                {
-                    transformedRows.Add(ToCustomEndpoint(kids, Request.PathBase));
-                }
-                else
-                {
-                    transformedRows.Add(row);
-                }
-            }
-
-            settings.Rows = transformedRows.ToArray();
-            return settings;
+            return CreateHomeSettingsResponse(settings, Request.PathBase);
         }
 
         return null;
     }
+
+    internal HomePageSettings CreateHomeSettingsResponse(HomePageSettings settings, PathString pathBase)
+    {
+        return new HomePageSettings
+        {
+            Version = settings.Version,
+            Rows = settings.Rows.Select(row =>
+            {
+                var responseRow = row is KidsMovies kids ? ToCustomEndpoint(kids, pathBase) : row;
+                var options = responseRow.ViewOptions ?? new HomeRowViewOptions();
+                if (options.HeightDp <= 0)
+                {
+                    options = options with { HeightDp = DefaultRowHeight(row) };
+                }
+
+                return ReferenceEquals(options, responseRow.ViewOptions)
+                    ? responseRow
+                    : responseRow.WithViewOptions(options);
+            }).ToArray(),
+        };
+    }
+
+    private static int DefaultRowHeight(HomeRowConfig row) => row switch
+    {
+        Genres => 128,
+        TvPrograms or TvChannels => 96,
+        _ => 172,
+    };
 
     private static bool HasFilterValues(string? value)
     {

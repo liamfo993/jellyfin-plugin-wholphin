@@ -320,12 +320,13 @@
                     return read(homeSettings(), 'Rows') || [];
                 }
 
-                function kidsViewOptions() {
+                function defaultViewOptions(type) {
+                    var isLiveTv = type === 'TvPrograms' || type === 'TvChannels';
                     return {
-                        heightDp: 172,
+                        heightDp: type === 'Genres' ? 128 : isLiveTv ? 96 : 172,
                         spacing: 16,
-                        contentScale: 3,
-                        aspectRatio: 0,
+                        contentScale: isLiveTv ? 0 : 3,
+                        aspectRatio: type === 'Genres' || isLiveTv ? 1 : 0,
                         imageType: 0,
                         showTitles: false,
                         useSeries: true,
@@ -428,6 +429,9 @@
 
                 function renderViewOptions(card, row, index) {
                     var viewOptions = read(row, 'viewOptions') || {};
+                    if (!(read(viewOptions, 'heightDp') > 0)) {
+                        write(viewOptions, 'heightDp', defaultViewOptions(read(row, 'type')).heightDp);
+                    }
                     write(row, 'viewOptions', viewOptions);
                     var details = make('details', 'wholphin-display-options');
                     details.appendChild(make('summary', '', 'Display options'));
@@ -453,7 +457,7 @@
                     });
                     [['heightDp', 'Row height'], ['spacing', 'Item spacing']].forEach(function (option) {
                         var input = textControl(option[0] + '-' + index, read(viewOptions, option[0]) || 0, 'number');
-                        input.min = '0';
+                        input.min = option[0] === 'heightDp' ? '1' : '0';
                         input.step = '1';
                         input.addEventListener('change', function () { write(viewOptions, option[0], Number(input.value) || 0); });
                         controls.appendChild(field(option[1], input));
@@ -763,7 +767,7 @@
                         row.query = [];
                         row.headers = [];
                     }
-                    row.viewOptions = row.type === 'KidsMovies' ? kidsViewOptions() : {};
+                    row.viewOptions = defaultViewOptions(row.type);
                     rows().push(row);
                     renderRows();
                 });
@@ -782,7 +786,7 @@
                             maxOfficialRating: '',
                             parentId: null,
                             sortBy: 'SortName',
-                            viewOptions: kidsViewOptions()
+                            viewOptions: defaultViewOptions('KidsMovies')
                         });
                     });
                     renderRows();

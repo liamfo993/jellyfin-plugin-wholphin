@@ -5,13 +5,13 @@ namespace Jellyfin.Plugin.Wholphin.Models;
 public record HomeRowViewOptions
 {
     [JsonPropertyName("heightDp")]
-    public int HeightDp { get; set; }
+    public int HeightDp { get; set; } = 172;
 
     [JsonPropertyName("spacing")]
-    public int Spacing { get; set; }
+    public int Spacing { get; set; } = 16;
 
     [JsonPropertyName("contentScale")]
-    public PrefContentScale ContentScale { get; set; }
+    public PrefContentScale ContentScale { get; set; } = PrefContentScale.FILL;
 
     [JsonPropertyName("aspectRatio")]
     public AspectRatio AspectRatio { get; set; }
@@ -23,10 +23,10 @@ public record HomeRowViewOptions
     public bool ShowTitles { get; set; }
 
     [JsonPropertyName("useSeries")]
-    public bool UseSeries { get; set; }
+    public bool UseSeries { get; set; } = true;
 
     [JsonPropertyName("episodeContentScale")]
-    public PrefContentScale EpisodeContentScale { get; set; }
+    public PrefContentScale EpisodeContentScale { get; set; } = PrefContentScale.FILL;
 
     [JsonPropertyName("episodeAspectRatio")]
     public AspectRatio EpisodeAspectRatio { get; set; }
