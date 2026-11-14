@@ -79,7 +79,7 @@ public class WholphinController : ControllerBase
             {
                 var responseRow = row is KidsMovies kids ? ToCustomEndpoint(kids, pathBase) : row;
                 var options = responseRow.ViewOptions ?? new HomeRowViewOptions();
-                if (options.HeightDp <= 0)
+                if (options.HeightDp < 64)
                 {
                     options = options with { HeightDp = DefaultRowHeight(row) };
                 }

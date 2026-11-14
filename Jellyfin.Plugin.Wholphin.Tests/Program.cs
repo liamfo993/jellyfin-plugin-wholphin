@@ -28,17 +28,23 @@ var original = new HomePageSettings
         new TvPrograms { ViewOptions = new() { HeightDp = 0 } },
         new NextUp { ViewOptions = new() { HeightDp = 240 } },
         new KidsMovies { Title = "Family", Genres = "Family", ViewOptions = new() { HeightDp = 172 } },
+        new ContinueWatching { ViewOptions = new() { HeightDp = 4 } },
+        new RecentlyReleased { ParentId = libraryId, ViewOptions = new() { HeightDp = 63 } },
+        new ContinueWatchingCombined { ViewOptions = new() { HeightDp = 64 } },
     ],
 };
 
 var response = controller.CreateHomeSettingsResponse(original, new PathString("/jellyfin"));
-Check(response.Rows.Length == 5 && response.Version == 1, "The response lost rows or version.");
+Check(response.Rows.Length == 8 && response.Version == 1, "The response lost rows or version.");
 Check(response.Rows[0] is RecentlyAdded recentlyAdded && recentlyAdded.ParentId == libraryId, "The library row changed.");
 Check(response.Rows[0].ViewOptions.HeightDp == 172 && response.Rows[0].ViewOptions.Spacing == 0 && response.Rows[0].ViewOptions.ShowTitles, "Legacy row options were not repaired correctly.");
 Check(response.Rows[1].ViewOptions.HeightDp == 128 && response.Rows[2].ViewOptions.HeightDp == 96, "Row-specific heights were not restored.");
 Check(response.Rows[3].ViewOptions.HeightDp == 240, "A configured height was overwritten.");
 Check(response.Rows[4] is CustomEndpoint endpoint && endpoint.Endpoint == "/jellyfin/Items" && endpoint.Query!.Any(x => x.Key == "genres" && x.Value == "Family"), "Kids row was not transformed.");
+Check(response.Rows[5].ViewOptions.HeightDp == 172 && response.Rows[6].ViewOptions.HeightDp == 172, "Tiny legacy rows were not restored to a visible size.");
+Check(response.Rows[7].ViewOptions.HeightDp == 64, "The minimum supported custom height was overwritten.");
 Check(original.Rows[0].ViewOptions.HeightDp == 0 && original.Rows[4] is KidsMovies, "Generating a response mutated the saved configuration.");
+Check(original.Rows[5].ViewOptions.HeightDp == 4, "Repairing a tiny row changed the saved configuration.");
 Check(controller.CreateHomeSettingsResponse(original, PathString.Empty).Rows[4] is CustomEndpoint, "Repeated requests changed the saved kids row.");
 
 var json = JsonSerializer.Serialize(response, new JsonSerializerOptions

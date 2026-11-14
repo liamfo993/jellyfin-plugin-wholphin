@@ -52,8 +52,8 @@ optional shared API key or local account. No YAML editing is needed for these
 settings.
 
 If existing rows appear blank after upgrading, restart Jellyfin and reload the
-Wholphin home screen. Rows saved with a zero height are displayed at the
-default height; other display settings are retained. Ensure the plugin is
+Wholphin home screen. Rows saved below Wholphin's minimum card height of 64
+are displayed at the default height; other display settings are retained. Ensure the plugin is
 selected as the home-screen settings source in Wholphin.
 
 #### Kids movie rows

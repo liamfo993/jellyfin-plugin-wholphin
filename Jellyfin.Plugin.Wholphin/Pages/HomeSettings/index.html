@@ -429,7 +429,7 @@
 
                 function renderViewOptions(card, row, index) {
                     var viewOptions = read(row, 'viewOptions') || {};
-                    if (!(read(viewOptions, 'heightDp') > 0)) {
+                    if (!(read(viewOptions, 'heightDp') >= 64)) {
                         write(viewOptions, 'heightDp', defaultViewOptions(read(row, 'type')).heightDp);
                     }
                     write(row, 'viewOptions', viewOptions);
@@ -457,7 +457,7 @@
                     });
                     [['heightDp', 'Row height'], ['spacing', 'Item spacing']].forEach(function (option) {
                         var input = textControl(option[0] + '-' + index, read(viewOptions, option[0]) || 0, 'number');
-                        input.min = option[0] === 'heightDp' ? '1' : '0';
+                        input.min = option[0] === 'heightDp' ? '64' : '0';
                         input.step = '1';
                         input.addEventListener('change', function () { write(viewOptions, option[0], Number(input.value) || 0); });
                         controls.appendChild(field(option[1], input));
