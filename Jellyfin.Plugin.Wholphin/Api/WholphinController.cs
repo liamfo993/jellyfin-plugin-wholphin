@@ -55,6 +55,7 @@ public class WholphinController : ControllerBase
         var settings = config.HomeConfig.HomePageSettings;
         if (settings != null)
         {
+            // Validate KidsMovies rows
             if (settings.Rows.OfType<KidsMovies>().Any(row =>
                 string.IsNullOrWhiteSpace(row.Title)
                 || (!HasFilterValues(row.Genres) && !HasFilterValues(row.Studios))
@@ -64,11 +65,22 @@ public class WholphinController : ControllerBase
                 return BadRequest("Each kids movies row requires a title, a genre or studio, and a valid sort order.");
             }
 
-            return new HomePageSettings
+            // Transform KidsMovies to CustomEndpoint, return all rows
+            var transformedRows = new List<HomeRowConfig>();
+            foreach (var row in settings.Rows)
             {
-                Version = settings.Version,
-                Rows = settings.Rows.Select(row => row is KidsMovies kids ? ToCustomEndpoint(kids, Request.PathBase) : row).ToArray(),
-            };
+                if (row is KidsMovies kids)
+                {
+                    transformedRows.Add(ToCustomEndpoint(kids, Request.PathBase));
+                }
+                else
+                {
+                    transformedRows.Add(row);
+                }
+            }
+
+            settings.Rows = transformedRows.ToArray();
+            return settings;
         }
 
         return null;
