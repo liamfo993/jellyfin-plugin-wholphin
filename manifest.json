@@ -9,6 +9,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.0.10.0",
+        "changelog": "Sets default row and episode images to fill, tall and primary, with height 187 and spacing 16.",
+        "targetAbi": "12.1",
+        "sourceUrl": "https://github.com/liamfo993/jellyfin-plugin-wholphin/releases/download/v0.0.10/Jellyfin.Plugin.Wholphin.zip",
+        "checksum": "62b96aef966ad74513d204f302b46db3",
+        "timestamp": "2026-11-14T10:49:08"
+      },
+      {
         "version": "0.0.9.0",
         "changelog": "Uses Wholphin's default row display settings unless explicitly customized, with dashboard reset controls.",
         "targetAbi": "12.1",
