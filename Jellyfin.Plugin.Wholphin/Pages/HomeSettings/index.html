@@ -208,10 +208,10 @@
                             <select id="newRowType" is="emby-select" aria-label="New row type"></select>
                             <button id="addRow" type="button" is="emby-button" class="raised">Add row</button>
                             <button id="addKidsRows" type="button" is="emby-button" class="raised">Add kids movie rows</button>
-                            <button id="resetRowDisplays" type="button" is="emby-button" class="raised">Use Wholphin defaults for all rows</button>
+                            <button id="resetRowDisplays" type="button" is="emby-button" class="raised">Use default display for all rows</button>
                         </div>
                         <div id="libraryStatus" class="fieldDescription"></div>
-                        <p class="wholphin-muted">Rows use Wholphin's display defaults unless you customize their display options.</p>
+                        <p class="wholphin-muted">Rows use the default display settings unless you customize their display options.</p>
                         <p class="wholphin-muted">Kids movie rows use genres and studios from your library metadata. Animation and studio names do not guarantee age suitability; configure Jellyfin parental controls for children.</p>
                     </section>
 
@@ -322,13 +322,12 @@
                     return read(homeSettings(), 'Rows') || [];
                 }
 
-                function defaultViewOptions(type) {
-                    var isLiveTv = type === 'TvPrograms' || type === 'TvChannels';
+                function defaultViewOptions() {
                     return {
-                        heightDp: type === 'Genres' ? 128 : isLiveTv ? 96 : 172,
+                        heightDp: 187,
                         spacing: 16,
-                        contentScale: isLiveTv ? 0 : 3,
-                        aspectRatio: type === 'Genres' || isLiveTv ? 1 : 0,
+                        contentScale: 3,
+                        aspectRatio: 0,
                         imageType: 0,
                         showTitles: false,
                         useSeries: true,
@@ -432,7 +431,7 @@
                 function renderViewOptions(card, row, index) {
                     var savedOptions = read(row, 'viewOptions');
                     var viewOptions = savedOptions && read(savedOptions, 'heightDp') >= 64
-                        ? savedOptions : defaultViewOptions(read(row, 'type'));
+                        ? savedOptions : defaultViewOptions();
                     function saveOption(name, value) {
                         if (viewOptions !== savedOptions) {
                             viewOptions = Object.assign({}, viewOptions);
@@ -444,8 +443,8 @@
                     var details = make('details', 'wholphin-display-options');
                     details.appendChild(make('summary', '', 'Display options'));
                     details.appendChild(make('p', 'wholphin-muted', savedOptions && read(savedOptions, 'heightDp') >= 64
-                        ? 'Custom display options are enabled.' : 'Using Wholphin defaults. Change a field to customize this row.'));
-                    var reset = make('button', 'raised', 'Use Wholphin defaults');
+                        ? 'Custom display options are enabled.' : 'Using default display settings. Change a field to customize this row.'));
+                    var reset = make('button', 'raised', 'Use default display');
                     reset.type = 'button';
                     reset.setAttribute('is', 'emby-button');
                     reset.addEventListener('click', function () {

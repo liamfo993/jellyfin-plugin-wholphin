@@ -33,23 +33,39 @@ var original = new HomePageSettings
 };
 
 var response = controller.CreateHomeSettingsResponse(original, new PathString("/jellyfin"));
+var defaults = new HomeRowViewOptions
+{
+    HeightDp = 187,
+    Spacing = 16,
+    ContentScale = PrefContentScale.FILL,
+    AspectRatio = AspectRatio.TALL,
+    ImageType = ViewOptionImageType.PRIMARY,
+    EpisodeContentScale = PrefContentScale.FILL,
+    EpisodeAspectRatio = AspectRatio.TALL,
+    EpisodeImageType = ViewOptionImageType.PRIMARY,
+};
 Check(response.Rows.Length == original.Rows.Length && response.Version == original.Version, "The response lost rows or version.");
 Check(response.Rows[0] is RecentlyAdded recentlyAdded && recentlyAdded.ParentId == libraryId, "The library row changed.");
-Check(response.Rows[0].ViewOptions is null && response.Rows[1].ViewOptions is null && response.Rows[2].ViewOptions is null, "Rows without overrides did not retain client defaults.");
+Check(response.Rows[0].ViewOptions == defaults && response.Rows[1].ViewOptions == defaults && response.Rows[2].ViewOptions == defaults, "Rows without overrides did not receive the requested defaults.");
 Check(response.Rows[3].ViewOptions == custom && response.Rows[3].ViewOptions != kidsCustom, "Custom options were overwritten by the kids row.");
-Check(response.Rows[4].ViewOptions is null && original.Rows[4].ViewOptions!.HeightDp == 4, "Invalid legacy height was not omitted without changing saved settings.");
+Check(response.Rows[4].ViewOptions == defaults && original.Rows[4].ViewOptions!.HeightDp == 4, "Invalid legacy height was not replaced without changing saved settings.");
 Check(response.Rows[5] is CustomEndpoint endpoint && endpoint.Endpoint == "/jellyfin/Items" && endpoint.Query!.Any(x => x.Key == "genres" && x.Value == "Family") && endpoint.ViewOptions == kidsCustom, "Custom kids options or endpoint changed.");
-Check(response.Rows[6] is CustomEndpoint && response.Rows[6].ViewOptions is null, "Kids row without overrides did not retain client defaults.");
-Check(original.Rows[5] is KidsMovies && controller.CreateHomeSettingsResponse(original, PathString.Empty).Rows[5] is CustomEndpoint, "Response generation mutated saved kids rows.");
+Check(response.Rows[6] is CustomEndpoint && response.Rows[6].ViewOptions == defaults, "Kids row without overrides did not receive the requested defaults.");
+Check(original.Rows[0].ViewOptions is null && original.Rows[5] is KidsMovies && controller.CreateHomeSettingsResponse(original, PathString.Empty).Rows[5] is CustomEndpoint, "Response generation mutated saved rows.");
 
 var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
 using var document = JsonDocument.Parse(JsonSerializer.Serialize(response, options));
 var rows = document.RootElement.GetProperty("rows");
 Check(rows[0].GetProperty("type").GetString() == "RecentlyAdded" && rows[0].GetProperty("parentId").GetGuid() == libraryId, "Library row JSON is incompatible.");
-Check(!rows[0].TryGetProperty("viewOptions", out _) && !rows[1].TryGetProperty("viewOptions", out _) && !rows[2].TryGetProperty("viewOptions", out _) && !rows[4].TryGetProperty("viewOptions", out _), "Client defaults require viewOptions to be omitted, not null.");
+var display = rows[0].GetProperty("viewOptions");
+Check(display.GetProperty("heightDp").GetInt32() == 187 && display.GetProperty("spacing").GetInt32() == 16
+    && display.GetProperty("contentScale").GetString() == "FILL" && display.GetProperty("aspectRatio").GetString() == "TALL"
+    && display.GetProperty("imageType").GetString() == "PRIMARY" && display.GetProperty("episodeContentScale").GetString() == "FILL"
+    && display.GetProperty("episodeAspectRatio").GetString() == "TALL" && display.GetProperty("episodeImageType").GetString() == "PRIMARY",
+    "Default display options were not serialized with the requested values.");
 Check(rows[3].GetProperty("viewOptions").GetProperty("heightDp").GetInt32() == 200, "Custom display options were not serialized.");
 Check(rows[5].GetProperty("type").GetString() == "CustomEndpoint" && rows[5].GetProperty("viewOptions").GetProperty("spacing").GetInt32() == 19, "Kids row JSON is incompatible.");
-Check(!rows[6].TryGetProperty("viewOptions", out _), "Default kids options were not omitted.");
+Check(rows[6].GetProperty("viewOptions").GetProperty("spacing").GetInt32() == 16, "Default kids options were not serialized.");
 
 var xml = new XmlSerializer(typeof(HomePageSettings));
 using var writer = new StringWriter();

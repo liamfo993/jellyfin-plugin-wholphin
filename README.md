@@ -51,11 +51,12 @@ available options. Seerr can be configured with a server address and an
 optional shared API key or local account. No YAML editing is needed for these
 settings.
 
-New rows use Wholphin's own display defaults. Expand a row's **Display options**
-to customize it, or select **Use Wholphin defaults** to remove its overrides.
-Existing custom options remain unchanged; use **Use Wholphin defaults for all
+By default, all rows use fill scaling, tall primary images (including episodes),
+a row height of 187, and item spacing of 16. Expand a row's **Display options**
+to customize it, or select **Use default display** to remove its overrides.
+Existing custom options remain unchanged; use **Use default display for all
 rows** and save to reset every row. Rows with a saved height below 64 use
-Wholphin defaults until their display options are reset or customized.
+the default display until their options are reset or customized.
 
 #### Kids movie rows
 

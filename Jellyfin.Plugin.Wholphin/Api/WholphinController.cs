@@ -78,8 +78,8 @@ public class WholphinController : ControllerBase
             Rows = settings.Rows.Select(row =>
             {
                 var responseRow = row is KidsMovies kids ? ToCustomEndpoint(kids, pathBase) : row;
-                return responseRow.ViewOptions is { HeightDp: < 64 }
-                    ? responseRow.WithViewOptions(null)
+                return responseRow.ViewOptions is null or { HeightDp: < 64 }
+                    ? responseRow.WithViewOptions(new HomeRowViewOptions())
                     : responseRow;
             }).ToArray(),
         };

@@ -5,7 +5,7 @@ namespace Jellyfin.Plugin.Wholphin.Models;
 public record HomeRowViewOptions
 {
     [JsonPropertyName("heightDp")]
-    public int HeightDp { get; set; } = 172;
+    public int HeightDp { get; set; } = 187;
 
     [JsonPropertyName("spacing")]
     public int Spacing { get; set; } = 16;

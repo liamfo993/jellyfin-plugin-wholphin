@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 
-test('new rows use client defaults and custom options can be reset', async () => {
+test('new rows show requested defaults and custom options can be reset', async () => {
     class Element {
         constructor(tag) {
             this.tag = tag;
@@ -60,13 +60,21 @@ test('new rows use client defaults and custom options can be reset', async () =>
         return null;
     }
     const list = document.getElementById('rowList');
+    for (const [id, value] of Object.entries({
+        'heightDp-0': '187', 'spacing-0': '16', 'contentScale-0': '3',
+        'aspectRatio-0': '0', 'imageType-0': '0', 'episodeContentScale-0': '3',
+        'episodeAspectRatio-0': '0', 'episodeImageType-0': '0',
+    })) {
+        assert.equal(String(find(list.children[0], e => e.id === id).value), value, id);
+    }
+    assert.equal(String(find(list.children[1], e => e.id === 'heightDp-1').value), '187');
     const height = find(list.children[0], e => e.id === 'heightDp-0');
     height.value = '200';
     height.fire('change');
     assert.equal(rows[0].viewOptions.heightDp, 200);
     assert.equal(rows[0].viewOptions.spacing, 16);
     assert.equal(rows[1].viewOptions, undefined);
-    find(list.children[0], e => e.tag === 'button' && e.textContent === 'Use Wholphin defaults').fire('click');
+    find(list.children[0], e => e.tag === 'button' && e.textContent === 'Use default display').fire('click');
     assert.equal(rows[0].viewOptions, null);
 
     rows[1].viewOptions = { heightDp: 180, spacing: 10 };
