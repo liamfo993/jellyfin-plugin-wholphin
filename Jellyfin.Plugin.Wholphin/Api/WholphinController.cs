@@ -72,39 +72,18 @@ public class WholphinController : ControllerBase
 
     internal HomePageSettings CreateHomeSettingsResponse(HomePageSettings settings, PathString pathBase)
     {
-        var kidsOptions = settings.Rows.OfType<KidsMovies>().FirstOrDefault()?.ViewOptions;
-        if (kidsOptions is { HeightDp: < 64 })
-        {
-            kidsOptions = kidsOptions with { HeightDp = 172 };
-        }
-
         return new HomePageSettings
         {
             Version = settings.Version,
             Rows = settings.Rows.Select(row =>
             {
                 var responseRow = row is KidsMovies kids ? ToCustomEndpoint(kids, pathBase) : row;
-                var options = row is not KidsMovies && kidsOptions is not null
-                    ? kidsOptions
-                    : responseRow.ViewOptions ?? new HomeRowViewOptions();
-                if (options.HeightDp < 64)
-                {
-                    options = options with { HeightDp = DefaultRowHeight(row) };
-                }
-
-                return ReferenceEquals(options, responseRow.ViewOptions)
-                    ? responseRow
-                    : responseRow.WithViewOptions(options);
+                return responseRow.ViewOptions is { HeightDp: < 64 }
+                    ? responseRow.WithViewOptions(null)
+                    : responseRow;
             }).ToArray(),
         };
     }
-
-    private static int DefaultRowHeight(HomeRowConfig row) => row switch
-    {
-        Genres => 128,
-        TvPrograms or TvChannels => 96,
-        _ => 172,
-    };
 
     private static bool HasFilterValues(string? value)
     {

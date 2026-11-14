@@ -38,9 +38,10 @@ public abstract class HomeRowConfig
     // public string type => this.GetType().Name;
 
     [JsonPropertyName("viewOptions")]
-    public HomeRowViewOptions ViewOptions { get; set; } = new();
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public HomeRowViewOptions? ViewOptions { get; set; }
 
-    internal HomeRowConfig WithViewOptions(HomeRowViewOptions viewOptions)
+    internal HomeRowConfig WithViewOptions(HomeRowViewOptions? viewOptions)
     {
         var copy = (HomeRowConfig)MemberwiseClone();
         copy.ViewOptions = viewOptions;

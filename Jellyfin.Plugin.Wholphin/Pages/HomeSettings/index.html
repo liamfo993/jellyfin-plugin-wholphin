@@ -208,9 +208,10 @@
                             <select id="newRowType" is="emby-select" aria-label="New row type"></select>
                             <button id="addRow" type="button" is="emby-button" class="raised">Add row</button>
                             <button id="addKidsRows" type="button" is="emby-button" class="raised">Add kids movie rows</button>
+                            <button id="resetRowDisplays" type="button" is="emby-button" class="raised">Use Wholphin defaults for all rows</button>
                         </div>
                         <div id="libraryStatus" class="fieldDescription"></div>
-                        <p class="wholphin-muted">When kids movie rows are configured, other rows use the first kids row's display options in Wholphin. Their own display options remain saved.</p>
+                        <p class="wholphin-muted">Rows use Wholphin's display defaults unless you customize their display options.</p>
                         <p class="wholphin-muted">Kids movie rows use genres and studios from your library metadata. Animation and studio names do not guarantee age suitability; configure Jellyfin parental controls for children.</p>
                     </section>
 
@@ -429,13 +430,29 @@
                 }
 
                 function renderViewOptions(card, row, index) {
-                    var viewOptions = read(row, 'viewOptions') || {};
-                    if (!(read(viewOptions, 'heightDp') >= 64)) {
-                        write(viewOptions, 'heightDp', defaultViewOptions(read(row, 'type')).heightDp);
+                    var savedOptions = read(row, 'viewOptions');
+                    var viewOptions = savedOptions && read(savedOptions, 'heightDp') >= 64
+                        ? savedOptions : defaultViewOptions(read(row, 'type'));
+                    function saveOption(name, value) {
+                        if (viewOptions !== savedOptions) {
+                            viewOptions = Object.assign({}, viewOptions);
+                            write(row, 'viewOptions', viewOptions);
+                            savedOptions = viewOptions;
+                        }
+                        write(viewOptions, name, value);
                     }
-                    write(row, 'viewOptions', viewOptions);
                     var details = make('details', 'wholphin-display-options');
                     details.appendChild(make('summary', '', 'Display options'));
+                    details.appendChild(make('p', 'wholphin-muted', savedOptions && read(savedOptions, 'heightDp') >= 64
+                        ? 'Custom display options are enabled.' : 'Using Wholphin defaults. Change a field to customize this row.'));
+                    var reset = make('button', 'raised', 'Use Wholphin defaults');
+                    reset.type = 'button';
+                    reset.setAttribute('is', 'emby-button');
+                    reset.addEventListener('click', function () {
+                        write(row, 'viewOptions', null);
+                        renderRows();
+                    });
+                    details.appendChild(reset);
                     var controls = make('div', 'wholphin-controls');
                     var scales = [['0', 'Fit'], ['1', 'None'], ['2', 'Crop'], ['3', 'Fill'], ['4', 'Fill width'], ['5', 'Fill height'], ['-1', 'Unrecognized']];
                     var ratios = [['0', 'Tall'], ['1', 'Wide'], ['2', '4:3'], ['3', 'Square']];
@@ -453,21 +470,21 @@
                             : option[2] === ratios ? ['TALL', 'WIDE', 'FOUR_THREE', 'SQUARE'] : ['PRIMARY', 'THUMB'];
                         if (typeof value === 'string' && names.indexOf(value) !== -1) value = names.indexOf(value);
                         var select = selectControl(option[0] + '-' + index, option[2], value === undefined ? '0' : value);
-                        select.addEventListener('change', function () { write(viewOptions, option[0], Number(select.value)); });
+                        select.addEventListener('change', function () { saveOption(option[0], Number(select.value)); });
                         controls.appendChild(field(option[1], select));
                     });
                     [['heightDp', 'Row height'], ['spacing', 'Item spacing']].forEach(function (option) {
                         var input = textControl(option[0] + '-' + index, read(viewOptions, option[0]) || 0, 'number');
                         input.min = option[0] === 'heightDp' ? '64' : '0';
                         input.step = '1';
-                        input.addEventListener('change', function () { write(viewOptions, option[0], Number(input.value) || 0); });
+                        input.addEventListener('change', function () { saveOption(option[0], Number(input.value)); });
                         controls.appendChild(field(option[1], input));
                     });
                     [['showTitles', 'Show titles'], ['useSeries', 'Use series images']].forEach(function (option) {
                         var input = make('input');
                         input.type = 'checkbox';
                         input.checked = Boolean(read(viewOptions, option[0]));
-                        input.addEventListener('change', function () { write(viewOptions, option[0], input.checked); });
+                        input.addEventListener('change', function () { saveOption(option[0], input.checked); });
                         var label = make('label', 'wholphin-checkbox', option[1]);
                         label.appendChild(input);
                         controls.appendChild(label);
@@ -768,7 +785,6 @@
                         row.query = [];
                         row.headers = [];
                     }
-                    row.viewOptions = defaultViewOptions(row.type);
                     rows().push(row);
                     renderRows();
                 });
@@ -786,10 +802,13 @@
                             studios: preset.studios,
                             maxOfficialRating: '',
                             parentId: null,
-                            sortBy: 'SortName',
-                            viewOptions: defaultViewOptions('KidsMovies')
+                            sortBy: 'SortName'
                         });
                     });
+                    renderRows();
+                });
+                document.getElementById('resetRowDisplays').addEventListener('click', function () {
+                    rows().forEach(function (row) { write(row, 'viewOptions', null); });
                     renderRows();
                 });
                 document.getElementById('seerrLoginType').addEventListener('change', updateLoginFields);

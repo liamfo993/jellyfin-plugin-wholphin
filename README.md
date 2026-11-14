@@ -51,14 +51,11 @@ available options. Seerr can be configured with a server address and an
 optional shared API key or local account. No YAML editing is needed for these
 settings.
 
-If existing rows appear blank after upgrading, restart Jellyfin and reload the
-Wholphin home screen. Rows saved below Wholphin's minimum card height of 64
-are displayed at the default height; other display settings are retained. Ensure the plugin is
-selected as the home-screen settings source in Wholphin.
-
-When kids movie rows are configured, all other rows use the first kids row's
-display options in Wholphin, including card size, spacing, and image shape.
-Their individual options remain saved and apply again if all kids rows are removed.
+New rows use Wholphin's own display defaults. Expand a row's **Display options**
+to customize it, or select **Use Wholphin defaults** to remove its overrides.
+Existing custom options remain unchanged; use **Use Wholphin defaults for all
+rows** and save to reset every row. Rows with a saved height below 64 use
+Wholphin defaults until their display options are reset or customized.
 
 #### Kids movie rows
 

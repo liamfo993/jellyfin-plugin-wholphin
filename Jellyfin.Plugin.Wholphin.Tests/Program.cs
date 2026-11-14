@@ -16,80 +16,45 @@ static void Check(bool condition, string message)
 
 var controller = new WholphinController(NullLoggerFactory.Instance, null!);
 var libraryId = Guid.NewGuid();
-var defaults = new HomeRowViewOptions();
-Check(defaults.HeightDp == 172 && defaults.Spacing == 16 && defaults.ContentScale == PrefContentScale.FILL && defaults.UseSeries, "New rows do not match the client defaults.");
+var custom = new HomeRowViewOptions { HeightDp = 200, Spacing = 12, ShowTitles = true };
+var kidsCustom = new HomeRowViewOptions { HeightDp = 156, Spacing = 19, AspectRatio = AspectRatio.WIDE };
 var original = new HomePageSettings
 {
-    Version = 1,
     Rows =
     [
-        new RecentlyAdded { ParentId = libraryId, ViewOptions = new() { HeightDp = 0, Spacing = 0, ShowTitles = true } },
-        new Genres { ParentId = libraryId, ViewOptions = new() { HeightDp = 0 } },
-        new TvPrograms { ViewOptions = new() { HeightDp = 0 } },
-        new NextUp { ViewOptions = new() { HeightDp = 240 } },
-        new ContinueWatching { ViewOptions = new() { HeightDp = 4 } },
-        new RecentlyReleased { ParentId = libraryId, ViewOptions = new() { HeightDp = 63 } },
-        new ContinueWatchingCombined { ViewOptions = new() { HeightDp = 64 } },
+        new RecentlyAdded { ParentId = libraryId },
+        new Genres { ParentId = libraryId },
+        new TvPrograms(),
+        new NextUp { ViewOptions = custom },
+        new ContinueWatching { ViewOptions = new() { HeightDp = 4, ShowTitles = true } },
+        new KidsMovies { Title = "Family", Genres = "Family", ViewOptions = kidsCustom },
+        new KidsMovies { Title = "Animation", Genres = "Animation" },
     ],
 };
 
 var response = controller.CreateHomeSettingsResponse(original, new PathString("/jellyfin"));
-Check(response.Rows.Length == 7 && response.Version == 1, "The response lost rows or version.");
+Check(response.Rows.Length == original.Rows.Length && response.Version == original.Version, "The response lost rows or version.");
 Check(response.Rows[0] is RecentlyAdded recentlyAdded && recentlyAdded.ParentId == libraryId, "The library row changed.");
-Check(response.Rows[0].ViewOptions.HeightDp == 172 && response.Rows[0].ViewOptions.Spacing == 0 && response.Rows[0].ViewOptions.ShowTitles, "Legacy row options were not repaired correctly.");
-Check(response.Rows[1].ViewOptions.HeightDp == 128 && response.Rows[2].ViewOptions.HeightDp == 96, "Row-specific heights were not restored.");
-Check(response.Rows[3].ViewOptions.HeightDp == 240, "A configured height was overwritten.");
-Check(response.Rows[4].ViewOptions.HeightDp == 172 && response.Rows[5].ViewOptions.HeightDp == 172, "Tiny legacy rows were not restored to a visible size.");
-Check(response.Rows[6].ViewOptions.HeightDp == 64, "The minimum supported custom height was overwritten.");
-Check(original.Rows[0].ViewOptions.HeightDp == 0 && original.Rows[4].ViewOptions.HeightDp == 4, "Generating a response mutated the saved configuration.");
+Check(response.Rows[0].ViewOptions is null && response.Rows[1].ViewOptions is null && response.Rows[2].ViewOptions is null, "Rows without overrides did not retain client defaults.");
+Check(response.Rows[3].ViewOptions == custom && response.Rows[3].ViewOptions != kidsCustom, "Custom options were overwritten by the kids row.");
+Check(response.Rows[4].ViewOptions is null && original.Rows[4].ViewOptions!.HeightDp == 4, "Invalid legacy height was not omitted without changing saved settings.");
+Check(response.Rows[5] is CustomEndpoint endpoint && endpoint.Endpoint == "/jellyfin/Items" && endpoint.Query!.Any(x => x.Key == "genres" && x.Value == "Family") && endpoint.ViewOptions == kidsCustom, "Custom kids options or endpoint changed.");
+Check(response.Rows[6] is CustomEndpoint && response.Rows[6].ViewOptions is null, "Kids row without overrides did not retain client defaults.");
+Check(original.Rows[5] is KidsMovies && controller.CreateHomeSettingsResponse(original, PathString.Empty).Rows[5] is CustomEndpoint, "Response generation mutated saved kids rows.");
 
-var kidsOptions = new HomeRowViewOptions
-{
-    HeightDp = 156,
-    Spacing = 19,
-    AspectRatio = AspectRatio.WIDE,
-    ContentScale = PrefContentScale.CROP,
-    ShowTitles = true,
-};
-var withKids = new HomePageSettings
-{
-    Rows =
-    [
-        original.Rows[0],
-        original.Rows[3],
-        new KidsMovies { Title = "Family", Genres = "Family", ViewOptions = kidsOptions },
-        new KidsMovies { Title = "Animated", Genres = "Animation", ViewOptions = new() { HeightDp = 200 } },
-    ],
-};
-var matched = controller.CreateHomeSettingsResponse(withKids, new PathString("/jellyfin"));
-Check(matched.Rows[0].ViewOptions == kidsOptions && matched.Rows[1].ViewOptions == kidsOptions, "Non-kids rows did not match every display option of the first kids row.");
-Check(matched.Rows[2] is CustomEndpoint endpoint && endpoint.Endpoint == "/jellyfin/Items" && endpoint.Query!.Any(x => x.Key == "genres" && x.Value == "Family"), "Kids row was not transformed.");
-Check(matched.Rows[3].ViewOptions.HeightDp == 200, "The other kids row was changed.");
-Check(original.Rows[0].ViewOptions.HeightDp == 0 && original.Rows[3].ViewOptions.HeightDp == 240 && withKids.Rows[2] is KidsMovies, "Matching changed the saved configuration.");
-Check(controller.CreateHomeSettingsResponse(withKids, PathString.Empty).Rows[2] is CustomEndpoint, "Repeated requests changed the saved kids row.");
-kidsOptions.HeightDp = 4;
-var repairedKids = controller.CreateHomeSettingsResponse(withKids, PathString.Empty);
-Check(repairedKids.Rows[0].ViewOptions.HeightDp == 172 && repairedKids.Rows[2].ViewOptions.HeightDp == 172 && kidsOptions.HeightDp == 4, "Tiny kids heights were not repaired consistently.");
-
-var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
-{
-    Converters = { new JsonStringEnumConverter() },
-});
-using var document = JsonDocument.Parse(json);
+var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
+using var document = JsonDocument.Parse(JsonSerializer.Serialize(response, options));
 var rows = document.RootElement.GetProperty("rows");
 Check(rows[0].GetProperty("type").GetString() == "RecentlyAdded" && rows[0].GetProperty("parentId").GetGuid() == libraryId, "Library row JSON is incompatible.");
-Check(rows[0].GetProperty("viewOptions").GetProperty("heightDp").GetInt32() == 172, "The serialized row height is incorrect.");
-Check(rows[0].GetProperty("viewOptions").GetProperty("contentScale").GetString() == "FILL", "The client enum value is incorrect.");
-using var matchedDocument = JsonDocument.Parse(JsonSerializer.Serialize(matched, new JsonSerializerOptions
-{
-    Converters = { new JsonStringEnumConverter() },
-}));
-Check(matchedDocument.RootElement.GetProperty("rows")[2].GetProperty("type").GetString() == "CustomEndpoint", "The kids row discriminator is incorrect.");
+Check(!rows[0].TryGetProperty("viewOptions", out _) && !rows[1].TryGetProperty("viewOptions", out _) && !rows[2].TryGetProperty("viewOptions", out _) && !rows[4].TryGetProperty("viewOptions", out _), "Client defaults require viewOptions to be omitted, not null.");
+Check(rows[3].GetProperty("viewOptions").GetProperty("heightDp").GetInt32() == 200, "Custom display options were not serialized.");
+Check(rows[5].GetProperty("type").GetString() == "CustomEndpoint" && rows[5].GetProperty("viewOptions").GetProperty("spacing").GetInt32() == 19, "Kids row JSON is incompatible.");
+Check(!rows[6].TryGetProperty("viewOptions", out _), "Default kids options were not omitted.");
 
 var xml = new XmlSerializer(typeof(HomePageSettings));
 using var writer = new StringWriter();
-xml.Serialize(writer, withKids);
+xml.Serialize(writer, original);
 using var reader = new StringReader(writer.ToString());
 var roundTrip = (HomePageSettings)xml.Deserialize(reader)!;
-Check(roundTrip.Rows[0] is RecentlyAdded && roundTrip.Rows[2] is KidsMovies, "Configuration XML did not preserve row types.");
+Check(roundTrip.Rows[0].ViewOptions is null && roundTrip.Rows[3].ViewOptions == custom && roundTrip.Rows[5] is KidsMovies && roundTrip.Rows[5].ViewOptions == kidsCustom, "Configuration XML did not preserve optional and custom options.");
 Console.WriteLine("Home settings response regression tests passed.");
