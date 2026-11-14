@@ -56,6 +56,10 @@ Wholphin home screen. Rows saved below Wholphin's minimum card height of 64
 are displayed at the default height; other display settings are retained. Ensure the plugin is
 selected as the home-screen settings source in Wholphin.
 
+When kids movie rows are configured, all other rows use the first kids row's
+display options in Wholphin, including card size, spacing, and image shape.
+Their individual options remain saved and apply again if all kids rows are removed.
+
 #### Kids movie rows
 
 Select **Add kids movie rows** to add editable Family, Animated, Pixar, and Disney
