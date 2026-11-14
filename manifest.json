@@ -9,6 +9,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.0.9.0",
+        "changelog": "Uses Wholphin's default row display settings unless explicitly customized, with dashboard reset controls.",
+        "targetAbi": "12.1",
+        "sourceUrl": "https://github.com/liamfo993/jellyfin-plugin-wholphin/releases/download/v0.0.9/Jellyfin.Plugin.Wholphin.zip",
+        "checksum": "601239f7e7af3036864bff6511ed90db",
+        "timestamp": "2026-11-14T10:37:45"
+      },
+      {
         "version": "0.0.8.0",
         "changelog": "Matches home row card size, spacing and display options to the first kids row.",
         "targetAbi": "12.1",
