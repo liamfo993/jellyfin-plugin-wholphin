@@ -1,4 +1,4 @@
-name: Create release
+name: Publish release
 
 on:
   push:
@@ -12,6 +12,10 @@ defaults:
 env:
   NAME: "Jellyfin.Plugin.Wholphin"
   TAG_NAME: ${{ github.ref_name }}
+
+concurrency:
+  group: plugin-release
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -31,7 +35,12 @@ jobs:
 
       - name: Build
         run: |
-          dotnet publish "${{ env.NAME }}" --configuration Release
+          VERSION="${TAG_NAME#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Invalid release version: $TAG_NAME" >&2
+            exit 1
+          fi
+          dotnet publish "$NAME" --configuration Release -p:Version="$VERSION" -p:AssemblyVersion="$VERSION" -p:FileVersion="$VERSION"
 
       - name: Zip
         run: |
@@ -43,12 +52,53 @@ jobs:
           echo "Checksums:"
           sha256sum "./dist/${{ env.NAME }}.zip"
           md5sum "./dist/${{ env.NAME }}.zip"
-      - name: Create GitHub release
+      - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          shopt -s globstar
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" "./dist/$NAME.zip" --clobber
+          else
+            gh release create "$TAG_NAME" --title "$TAG_NAME" --verify-tag --notes "See the commit history for changes." "./dist/$NAME.zip"
+          fi
+          gh release edit "$TAG_NAME" --draft=false --latest
 
-          gh release create "${{ env.TAG_NAME }}" \
-            --latest --title "${{ env.TAG_NAME }}" --verify-tag -n "" --draft \
-            "./dist/${{ env.NAME }}.zip"
+      - name: Update Jellyfin repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CHECKSUM="$(md5sum "./dist/$NAME.zip" | cut -d ' ' -f 1)"
+          TIMESTAMP="$(gh release view "$TAG_NAME" --json publishedAt --jq '.publishedAt')"
+          export CHECKSUM TIMESTAMP
+          git fetch origin main
+          git switch -C release-manifest origin/main
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path("manifest.json")
+          manifest = json.loads(path.read_text())
+          version = os.environ["TAG_NAME"][1:]
+          if version.count(".") == 2:
+              version += ".0"
+          versions = manifest[0]["versions"]
+          versions[:] = [entry for entry in versions if entry["version"] != version]
+          versions.append({
+              "version": version,
+              "changelog": "See the GitHub release for changes.",
+              "targetAbi": "12.1",
+              "sourceUrl": f'https://github.com/{os.environ["GITHUB_REPOSITORY"]}/releases/download/{os.environ["TAG_NAME"]}/{os.environ["NAME"]}.zip',
+              "checksum": os.environ["CHECKSUM"],
+              "timestamp": os.environ["TIMESTAMP"].removesuffix("Z"),
+          })
+          versions.sort(key=lambda entry: tuple(map(int, entry["version"].split("."))), reverse=True)
+          path.write_text(json.dumps(manifest, indent=2) + "\n")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish $TAG_NAME in plugin manifest"
+            git push origin HEAD:main
+          fi

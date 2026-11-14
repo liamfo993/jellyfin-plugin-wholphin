@@ -30,6 +30,17 @@ Please note: this plugin is not required to use Wholphin!
 9. Go back to Dashboard->Plugins->Wholphin
 10. Open `Settings` to configure the home screen and Seerr
 
+The repository lists versions compatible with Jellyfin 12.1 and newer. If a
+new release is not visible immediately, refresh the plugin catalog or check
+that this repository is enabled.
+
+### Publishing a release
+
+Push a `vX.Y.Z` tag to build and publish the plugin ZIP and update
+`manifest.json` on `main`. The release workflow needs permission to write
+repository contents. Check that the workflow finishes successfully before
+announcing the release.
+
 ## Configuration
 
 ### Jellyfin Dashboard

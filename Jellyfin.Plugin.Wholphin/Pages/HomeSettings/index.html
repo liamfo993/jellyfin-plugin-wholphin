@@ -12,11 +12,13 @@
             <div class="content-primary">
                 <style>
                     #wholphinConfigurationPage {
-                        --wholphin-accent: #79d3b0;
-                        --wholphin-coral: #ed9975;
-                        --wholphin-line: rgba(172, 190, 188, .22);
-                        --wholphin-muted: rgba(230, 238, 235, .68);
-                        font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+                        --wholphin-accent: #00a4dc;
+                        --wholphin-card: rgba(255, 255, 255, .055);
+                        --wholphin-line: rgba(255, 255, 255, .1);
+                        --wholphin-muted: var(--secondary-text-color, #aaa);
+                    }
+                    #wholphinConfigurationPage [hidden] {
+                        display: none !important;
                     }
                     #wholphinConfigurationPage .content-primary {
                         margin: 0 auto;
@@ -24,38 +26,33 @@
                         padding: 0 1.25em 3em;
                     }
                     #wholphinConfigurationPage .wholphin-masthead {
-                        align-items: end;
-                        background: linear-gradient(110deg, rgba(51, 117, 97, .2), rgba(31, 36, 35, .02) 70%);
-                        border-bottom: 1px solid var(--wholphin-line);
-                        display: flex;
-                        justify-content: space-between;
-                        margin: 0 -1.25em 2em;
-                        padding: 2.2em 1.25em 1.7em;
-                    }
-                    #wholphinConfigurationPage .wholphin-eyebrow {
-                        color: var(--wholphin-accent);
-                        font-size: .82em;
-                        font-weight: 700;
-                        margin: 0 0 .45em;
-                        text-transform: uppercase;
+                        background: linear-gradient(120deg, rgba(0, 164, 220, .18), var(--wholphin-card) 60%);
+                        border: 1px solid rgba(0, 164, 220, .24);
+                        border-radius: 12px;
+                        margin: 0 0 1.25em;
+                        padding: 1.5em;
                     }
                     #wholphinConfigurationPage .wholphin-masthead h1 {
-                        font-size: 2.15em;
-                        font-weight: 600;
+                        font-size: 1.8em;
+                        margin: 0 0 .35em;
+                    }
+                    #wholphinConfigurationPage .wholphin-masthead p {
                         margin: 0;
                     }
                     #wholphinConfigurationPage .wholphin-section {
-                        border-bottom: 1px solid var(--wholphin-line);
-                        margin: 0;
-                        padding: 1.75em 0 2em;
+                        background: var(--wholphin-card);
+                        border: 1px solid var(--wholphin-line);
+                        border-radius: 12px;
+                        margin: 0 0 1.25em;
+                        padding: 1.25em;
                     }
                     #wholphinConfigurationPage .wholphin-section-heading {
-                        align-items: baseline;
+                        align-items: center;
                         display: flex;
                         flex-wrap: wrap;
                         gap: .4em 1em;
                         justify-content: space-between;
-                        margin-bottom: .5em;
+                        margin-bottom: 1em;
                     }
                     #wholphinConfigurationPage .wholphin-section-heading h2 {
                         font-size: 1.35em;
@@ -69,8 +66,8 @@
                     }
                     #wholphinConfigurationPage .wholphin-row {
                         border: 1px solid var(--wholphin-line);
-                        border-left: 3px solid var(--wholphin-accent);
-                        border-radius: 5px;
+                        background: var(--wholphin-card);
+                        border-radius: 9px;
                         margin: .85em 0;
                         padding: 1.1em 1.2em;
                     }
@@ -108,7 +105,7 @@
                     #wholphinConfigurationPage input:focus,
                     #wholphinConfigurationPage select:focus {
                         border-color: var(--wholphin-accent) !important;
-                        box-shadow: 0 0 0 2px rgba(121, 211, 176, .18);
+                        box-shadow: 0 0 0 2px rgba(0, 164, 220, .18);
                         outline: none;
                     }
                     #wholphinConfigurationPage .wholphin-actions {
@@ -133,9 +130,11 @@
                         grid-template-columns: minmax(0, 1.5fr) minmax(240px, .75fr);
                     }
                     #wholphinConfigurationPage .wholphin-address-panel {
-                        border-left: 2px solid var(--wholphin-accent);
+                        background: var(--wholphin-card);
+                        border: 1px solid var(--wholphin-line);
+                        border-radius: 12px;
                         margin-top: 1em;
-                        padding: .8em 0 .8em 1em;
+                        padding: .85em 1em;
                     }
                     #wholphinConfigurationPage .wholphin-address-state {
                         align-items: start;
@@ -143,18 +142,19 @@
                         gap: .75em;
                     }
                     #wholphinConfigurationPage .wholphin-state-dot {
-                        background: #858d89;
+                        background: #e0a030;
                         border-radius: 50%;
                         flex: 0 0 10px;
                         height: 10px;
                         margin-top: .35em;
+                        box-shadow: 0 0 0 4px rgba(224, 160, 48, .13);
                     }
                     #wholphinConfigurationPage .wholphin-address-panel[data-state="saved"] .wholphin-state-dot {
-                        background: var(--wholphin-accent);
-                        box-shadow: 0 0 0 4px rgba(121, 211, 176, .13);
+                        background: #52b788;
+                        box-shadow: 0 0 0 4px rgba(82, 183, 136, .13);
                     }
                     #wholphinConfigurationPage .wholphin-address-panel[data-state="pending"] .wholphin-state-dot {
-                        background: var(--wholphin-coral);
+                        background: #e0a030;
                     }
                     #wholphinConfigurationPage .wholphin-address-label {
                         display: block;
@@ -167,8 +167,6 @@
                         overflow-wrap: anywhere;
                     }
                     #wholphinConfigurationPage .wholphin-submit {
-                        background: var(--wholphin-accent) !important;
-                        color: #14221d !important;
                         font-weight: 700;
                         min-height: 44px;
                         padding: 0 1.5em;
@@ -191,16 +189,12 @@
                             grid-template-columns: 1fr;
                             gap: .4em;
                         }
-                        #wholphinConfigurationPage .wholphin-masthead {
-                            align-items: start;
-                            padding-top: 1.6em;
-                        }
                     }
                 </style>
                 <header class="wholphin-masthead">
                     <div>
-                        <p class="wholphin-eyebrow">Wholphin · Jellyfin plugin</p>
-                        <h1>Settings</h1>
+                        <h1>Wholphin settings</h1>
+                        <p class="fieldDescription">Configure home screen rows and the Seerr connection for Wholphin.</p>
                     </div>
                 </header>
                 <form id="wholphinForm">
